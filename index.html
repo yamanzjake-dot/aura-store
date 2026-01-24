@@ -3,184 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Aura & Luxe Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <title>Aura & Luxe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Tajawal:wght@400;500;700;800&display=block" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
+    <div id="loader" class="loader-overlay">
+        <div class="brand-loader"><span class="brand-main">Aura</span><span class="brand-sub">&Luxe</span></div>
+    </div>
+
     <header class="navbar">
         <div class="nav-content">
-            <div class="menu-icon" onclick="toggleSidebar()">☰</div>
-            <div class="brand">
-                <span class="brand-main">Aura</span><span class="brand-sub">&Luxe</span>
+            <div class="menu-btn" onclick="toggleSidebar()">
+                <span class="bar"></span><span class="bar"></span><span class="bar"></span>
             </div>
+            <div class="brand"><span class="brand-main">Aura</span><span class="brand-sub">&Luxe</span></div>
             <div class="cart-btn" onclick="openCheckout()">
-                🛒 <span id="cart-badge" class="badge">0</span>
+                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <span id="cart-badge" class="badge">0</span>
             </div>
         </div>
     </header>
 
-    <div id="sidebar" class="sidebar">
-        <button class="close-sidebar-btn" onclick="toggleSidebar()">✕</button>
-        <div class="sidebar-content">
-            <h3>القائمة الرئيسية</h3>
-            <a onclick="toggleSidebar(); window.scrollTo(0,0)">🏠 الرئيسية</a>
-            <a onclick="toggleSidebar(); location.href='https://wa.me/962781591754'" style="color:#25D366;">📞 تواصل معنا (واتساب)</a>
-            <a onclick="toggleSidebar(); location.href='https://web.facebook.com/Aurandluxe'" style="color:#1877F2;">Facebook 🔵</a>
-            <a onclick="toggleSidebar(); location.href='https://www.instagram.com/aurandluxe/'" style="color:#E1306C;">Instagram 📸</a>
+    <div class="search-container">
+        <div class="search-wrapper">
+            <input type="text" id="search-input" placeholder="ابحث عن منتج، موديل، أو لون... 🔍" oninput="handleSearch(this.value)">
+            <div id="search-suggestions" class="suggestions-box"></div>
         </div>
+    </div>
+
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header"><h3>القائمة</h3><button class="close-sidebar" onclick="toggleSidebar()">✕</button></div>
+        <nav class="sidebar-nav">
+            <a onclick="toggleSidebar(); window.scrollTo(0,0)">🏠 الرئيسية</a>
+            <a onclick="scrollToSection('exclusive-section')">🚨 العروض الحصرية</a>
+            <a onclick="scrollToSection('best-seller-section')">🔥 الأكثر طلباً</a>
+            <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
+            <a onclick="openPolicy('shipping')">📦 الشحن والتوصيل</a>
+            <a onclick="openPolicy('refund')">🔄 الاستبدال والاسترجاع</a>
+            <a onclick="openPolicy('privacy')">🔒 سياسة الخصوصية</a>
+            <a onclick="openPolicy('contact')">📞 اتصل بنا</a>
+        </nav>
+        <div class="sidebar-footer"><p>Aura & Luxe © 2026</p></div>
     </div>
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
     <main class="container">
+        <div id="hero-slider" class="hero-slider">
+            <div class="hero-slide active" style="background-image: url('https://via.placeholder.com/800x400/00B4D8/ffffff?text=Aura+%26+Luxe');"></div>
+            <div class="hero-slide" style="background-image: url('https://via.placeholder.com/800x400/FFB703/ffffff?text=New+Collection');"></div>
+        </div>
+
         <div id="categories-nav" class="categories-wrapper">
-            <button class="cat-btn active" onclick="filterByCat(this, 'all')">الكل</button>
+            <button class="cat-btn active" onclick="filterByCat(this, 'all')">الكل ✨</button>
         </div>
 
-        <div id="exclusive-section" style="display:none; margin-bottom:30px;">
-            <h2 class="section-title" style="color:#D32F2F;">🚨 عروض لفترة محدودة</h2>
+        <section id="exclusive-section" style="display:none;">
+            <div class="section-header"><h2 class="section-title">🚨 عروض حصرية</h2></div>
             <div id="exclusive-grid" class="horizontal-scroll"></div>
-        </div>
+        </section>
 
-        <div id="best-seller-section" style="display:none; margin-bottom:30px;">
-            <h2 class="section-title">🔥 الأكثر طلباً</h2>
+        <section id="best-seller-section" style="display:none;">
+            <div class="section-header"><h2 class="section-title">🔥 الأكثر طلباً</h2></div>
             <div id="best-seller-grid" class="horizontal-scroll"></div>
-        </div>
+        </section>
 
-        <h2 id="main-title" class="section-title">✨ كل المنتجات</h2>
-        <div id="products-grid" class="grid">
-            <div class="skeleton"></div>
-            <div class="skeleton"></div>
+        <h2 id="main-products-title" class="section-title">✨ جميع المنتجات</h2>
+        <div id="products-grid" class="grid"></div>
+
+        <div class="hidden-stock-section">
+            <h3>لسه ما شفت كل شي! 😉</h3>
+            <p>عندنا موديلات بالمستودع لسه ما انعرضت. تواصل معنا!</p>
+            <button class="hidden-btn" onclick="openHiddenRequest()">شوفي عندكم كمان؟ (واتساب)</button>
         </div>
     </main>
 
-    <footer>
-        <div class="social-section">
-            <p style="margin-bottom:10px; font-weight:bold; color:#555;">تابعونا على:</p>
-            <div class="social-icons">
-                <a href="https://web.facebook.com/Aurandluxe" target="_blank" class="social-btn fb">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" width="24" height="24">
-                </a>
-                <a href="https://www.instagram.com/aurandluxe/" target="_blank" class="social-btn insta">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" width="24" height="24">
-                </a>
-                <a href="https://wa.me/962781591754" target="_blank" class="social-btn wa">
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" width="24" height="24">
-                </a>
-            </div>
-        </div>
-
+    <footer class="main-footer">
         <div class="footer-links">
-            <a onclick="openPolicy('shipping-modal')">سياسة الشحن</a>
-            <span class="separator">|</span>
-            <a onclick="openPolicy('refund-modal')">الاسترجاع</a>
-            <span class="separator">|</span>
-            <a onclick="openPolicy('privacy-modal')">الخصوصية</a>
-            <span class="separator">|</span>
-            <a onclick="openPolicy('terms-modal')">الشروط</a>
+            <span onclick="openPolicy('privacy')">الخصوصية</span> • 
+            <span onclick="openPolicy('terms')">الشروط</span> • 
+            <span onclick="openPolicy('contact')">اتصل بنا</span>
         </div>
-        <p class="copyright">جميع الحقوق محفوظة © Aura & Luxe 2026</p>
+        <p class="copy">جميع الحقوق محفوظة © Aura & Luxe 2026</p>
+        <p class="disclaimer">This site is not a part of the Facebook website or Facebook Inc. Additionally, This site is NOT endorsed by Facebook in any way. FACEBOOK is a trademark of FACEBOOK, Inc.</p>
     </footer>
 
-    <div id="shipping-modal" class="modal-overlay">
-        <div class="modal-sheet">
-            <button class="close-modal-btn" onclick="closePolicy('shipping-modal')">✕</button>
-            <h2 class="detail-title">سياسة الشحن</h2>
-            <div class="detail-desc policy-text">
-                <h3>1. التوصيل</h3>
-                <p>يغطي التوصيل كافة محافظات المملكة.</p>
-                <h3>2. التكلفة والوقت</h3>
-                <p>3 دنانير ثابتة. التوصيل خلال 24-72 ساعة عمل.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="refund-modal" class="modal-overlay">
-        <div class="modal-sheet">
-            <button class="close-modal-btn" onclick="closePolicy('refund-modal')">✕</button>
-            <h2 class="detail-title">الاسترجاع والاستبدال</h2>
-            <div class="detail-desc policy-text">
-                <h3>حق المعاينة</h3>
-                <p>يحق لك معاينة المنتج قبل الدفع للمندوب. الاستبدال مجاني في حال وجود خلل مصنعي خلال 3 أيام.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="privacy-modal" class="modal-overlay">
-        <div class="modal-sheet">
-            <button class="close-modal-btn" onclick="closePolicy('privacy-modal')">✕</button>
-            <h2 class="detail-title">سياسة الخصوصية</h2>
-            <div class="detail-desc policy-text">
-                <h3>البيانات</h3>
-                <p>نجمع الاسم والهاتف فقط للتوصيل. نستخدم ملفات تعريف الارتباط (Cookies) لتحسين الخدمة.</p>
-            </div>
-        </div>
-    </div>
-
-    <div id="terms-modal" class="modal-overlay">
-        <div class="modal-sheet">
-            <button class="close-modal-btn" onclick="closePolicy('terms-modal')">✕</button>
-            <h2 class="detail-title">شروط الخدمة</h2>
-            <div class="detail-desc policy-text">
-                <p>الدفع عند الاستلام بالدينار الأردني. الأسعار نهائية.</p>
-            </div>
-        </div>
+    <div class="floating-social">
+        <a href="https://wa.me/962781591754" class="float-btn" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"></a>
+        <a href="https://web.facebook.com/Aurandluxe" class="float-btn" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="Facebook"></a>
+        <a href="https://www.instagram.com/aurandluxe/" class="float-btn" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram"></a>
     </div>
 
     <div id="product-modal" class="modal-overlay">
-        <div class="modal-sheet">
-            <button class="close-modal-btn" onclick="closeModal()">✕</button>
-            <div id="modal-body"></div>
-        </div>
+        <div class="modal-sheet" id="modal-sheet-content"></div>
     </div>
 
     <div id="checkout-modal" class="modal-overlay">
         <div class="modal-sheet checkout-sheet">
-            <div class="sheet-header">
-                <h3>سلة المشتريات 🛍️</h3>
-                <button class="close-modal-btn" onclick="closeCheckout()">✕</button>
+            <div class="modal-header-sticky">
+                <h2 class="section-title" style="margin:0;">إتمام الطلب 🛍️</h2>
+                <button class="close-sheet-btn" onclick="closeCheckout()">✕</button>
             </div>
-            <form id="order-form" onsubmit="submitOrder(event)">
-                <div class="form-section">
-                    <label>الاسم الكريم</label>
-                    <input type="text" id="c-name" class="input" required placeholder="الاسم الثلاثي">
-                    <label>رقم الهاتف</label>
-                    <input type="tel" id="c-phone" class="input" required placeholder="07xxxxxxxx" maxlength="10">
-                    <label>المحافظة</label>
-                    <select id="c-city" class="input" required>
-                        <option value="" disabled selected>اختر المحافظة...</option>
-                        <option value="Amman">عمان</option>
-                        <option value="Irbid">إربد</option>
-                        <option value="Zarqa">الزرقاء</option>
-                        <option value="Aqaba">العقبة</option>
-                        <option value="Salt">السلط</option>
-                        <option value="Madaba">مأدبا</option>
-                        <option value="Mafraq">المفرق</option>
-                        <option value="Jerash">جرش</option>
-                        <option value="Ajloun">عجلون</option>
-                        <option value="Karak">الكرك</option>
-                        <option value="Tafilah">الطفيلة</option>
-                        <option value="Maan">معان</option>
-                    </select>
-                    <label>العنوان بالتفصيل</label>
-                    <input type="text" id="c-address" class="input" required placeholder="المنطقة، الشارع...">
-                    <label>ملاحظة (اختياري)</label>
-                    <input type="text" id="c-note" class="input">
-                </div>
-                <div class="bill-summary">
-                    <div class="row"><span>المجموع:</span> <span id="bill-sub">0.00</span></div>
-                    <div class="row"><span>التوصيل:</span> <span>3.00 JOD</span></div>
-                    <div class="row total"><span>الإجمالي:</span> <span id="bill-total">0.00 JOD</span></div>
-                </div>
-                <div class="payment-note">💰 الدفع عند الاستلام، وسيتم التواصل معك فوراً لتأكيد الطلب</div>
-                <br>
-                <button type="submit" class="btn btn-primary w-100">تأكيد الطلب 🚀</button>
-            </form>
+            <div class="modal-scroll-content" id="cart-content-wrapper"></div>
         </div>
     </div>
 
-    <div id="loader" class="loader-overlay"><div class="spinner"></div></div>
+    <div id="policy-modal" class="modal-overlay">
+        <div class="modal-sheet">
+            <div class="modal-header-sticky">
+                <h2 id="p-title" style="margin:0; font-family:'Marhey'; color:var(--primary);"></h2>
+                <button class="close-sheet-btn" onclick="closePolicy()">✕</button>
+            </div>
+            <div class="modal-scroll-content"><p id="p-text"></p></div>
+        </div>
+    </div>
+
+    <div id="zoom-modal" class="zoom-overlay">
+        <button class="zoom-nav-btn prev" onclick="zoomNavigate(-1)">&#10094;</button>
+        <div class="zoom-content-wrapper">
+            <img id="zoom-img" src="">
+            <div class="zoom-counter" id="zoom-counter"></div>
+        </div>
+        <button class="zoom-nav-btn next" onclick="zoomNavigate(1)">&#10095;</button>
+        <button class="close-zoom" onclick="closeZoom()">✕</button>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
