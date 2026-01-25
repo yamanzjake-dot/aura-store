@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Aura & Luxe</title>
     <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Tajawal:wght@400;500;700;800&display=block" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
@@ -11,7 +11,18 @@
 <body>
 
     <div id="loader" class="loader-overlay">
-        <div class="brand-loader"><span class="brand-main">Aura</span><span class="brand-sub">&Luxe</span></div>
+        <div class="loader-content">
+            <div class="brand-box">
+                <span class="brand-main">Aura</span><span class="brand-sub">&Luxe</span>
+            </div>
+            <div class="slogan-mask">
+                <p class="loader-slogan">شوف بعينك قبل ما تشتري.. صور واقعية 100% 👁️</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="top-bar">
+        <p>شوف بعينك قبل ما تشتري.. صور واقعية 100% 👁️</p>
     </div>
 
     <header class="navbar">
@@ -21,7 +32,7 @@
             </div>
             <div class="brand"><span class="brand-main">Aura</span><span class="brand-sub">&Luxe</span></div>
             <div class="cart-btn" onclick="openCheckout()">
-                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
                 <span id="cart-badge" class="badge">0</span>
             </div>
         </div>
@@ -52,8 +63,7 @@
 
     <main class="container">
         <div id="hero-slider" class="hero-slider">
-            <div class="hero-slide active" style="background-image: url('https://via.placeholder.com/800x400/00B4D8/ffffff?text=Aura+%26+Luxe');"></div>
-            <div class="hero-slide" style="background-image: url('https://via.placeholder.com/800x400/FFB703/ffffff?text=New+Collection');"></div>
+            <div class="hero-slide active" style="background-image: url('https://via.placeholder.com/800x400/00B4D8/ffffff?text=Loading+Banners...');"></div>
         </div>
 
         <div id="categories-nav" class="categories-wrapper">
@@ -61,7 +71,7 @@
         </div>
 
         <section id="exclusive-section" style="display:none;">
-            <div class="section-header"><h2 class="section-title">🚨 عروض حصرية</h2></div>
+            <div class="section-header"><h2 class="section-title">🚨 العروض الحصرية</h2></div>
             <div id="exclusive-grid" class="horizontal-scroll"></div>
         </section>
 
@@ -89,12 +99,6 @@
         <p class="copy">جميع الحقوق محفوظة © Aura & Luxe 2026</p>
         <p class="disclaimer">This site is not a part of the Facebook website or Facebook Inc. Additionally, This site is NOT endorsed by Facebook in any way. FACEBOOK is a trademark of FACEBOOK, Inc.</p>
     </footer>
-
-    <div class="floating-social">
-        <a href="https://wa.me/962781591754" class="float-btn" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp"></a>
-        <a href="https://web.facebook.com/Aurandluxe" class="float-btn" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/b/b8/2021_Facebook_icon.svg" alt="Facebook"></a>
-        <a href="https://www.instagram.com/aurandluxe/" class="float-btn" target="_blank"><img src="https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png" alt="Instagram"></a>
-    </div>
 
     <div id="product-modal" class="modal-overlay">
         <div class="modal-sheet" id="modal-sheet-content"></div>

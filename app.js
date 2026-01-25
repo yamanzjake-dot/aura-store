@@ -1,42 +1,43 @@
-// ⚠️ الرابط الجديد الذي زودتني به
+// ⚠️ رابط السكربت الخاص بك
 const API_URL = "https://script.google.com/macros/s/AKfycbwhp-xUXRfgU0shX-ub04QOecukLzcrGEo-B9RWe4FL0w48MlU4_-cU9byuDBBMXnEGiw/exec";
 
-let state = { products: [], cart: [], currentProduct: null, currentImages: [], zoomIndex: 0, variantTracker: {}, mainQty: 1 };
+let state = { 
+    products: [], 
+    banners: [], // مصفوفة البانرات
+    cart: [], 
+    currentProduct: null, 
+    studioImages: [], 
+    realImages: [], 
+    currentImages: [], 
+    viewMode: 'studio', 
+    zoomIndex: 0, 
+    variantTracker: {}, 
+    mainQty: 1 
+};
 let slideInterval; 
+let heroInterval; // للبانرات
 let fuse; 
 
 const sitePolicies = {
-    privacy: {
-        title: "🔒 سياسة الخصوصية",
-        content: `<div style="text-align: right; line-height: 1.8;">نحن في Aura & Luxe نلتزم بحماية خصوصيتك. نقوم بجمع اسمك، رقم هاتفك، وعنوانك فقط لغايات توصيل الطلب.</div>`
-    },
-    shipping: {
-        title: "📦 الشحن والتوصيل",
-        content: `<div style="text-align: right; line-height: 1.8;">نقوم بالتوصيل لجميع محافظات المملكة.<br>عمان والزرقاء: 24-48 ساعة.<br>باقي المحافظات: 48-72 ساعة.<br>رسوم التوصيل: 3 دنانير تضاف عند إتمام الطلب.</div>`
-    },
-    refund: {
-        title: "🔄 الاستبدال والاسترجاع",
-        content: `<div style="text-align: right; line-height: 1.8;">يحق للعميل فتح الطرد ومعاينة المنتج قبل الدفع. في حال وجود عيب مصنعي، يتم الاستبدال مجاناً خلال 3 أيام.</div>`
-    },
-    contact: {
-        title: "📞 معلومات التواصل",
-        content: `<div style="text-align: right; line-height: 1.8;"><strong>رقم المدير / خدمة العملاء:</strong><br><a href="tel:962781808198" style="color:var(--primary);">0781808198</a><br><br><strong>البريد الإلكتروني:</strong><br><a href="mailto:babyandtoddlerss@gmail.com" style="color:var(--primary);">babyandtoddlerss@gmail.com</a></div>`
-    },
-    terms: {
-        title: "⚖️ شروط الاستخدام",
-        content: `<div style="text-align: right; line-height: 1.8;">الأسعار نهائية وتشمل الضريبة. يحق للمتجر إلغاء الطلب في حال عدم الرد على الهاتف.<br><br><strong>Disclaimer:</strong> This site is not a part of the Facebook website or Facebook Inc.</div>`
-    }
+    privacy: { title: "🔒 سياسة الخصوصية", content: `<div style="text-align: right; line-height: 1.8;">نحن في Aura & Luxe نلتزم بحماية خصوصيتك. نقوم بجمع اسمك، رقم هاتفك، وعنوانك فقط لغايات توصيل الطلب.</div>` },
+    shipping: { title: "📦 الشحن والتوصيل", content: `<div style="text-align: right; line-height: 1.8;">نقوم بالتوصيل لجميع محافظات المملكة.<br>عمان والزرقاء: 24-48 ساعة.<br>باقي المحافظات: 48-72 ساعة.<br>رسوم التوصيل: 3 دنانير تضاف عند إتمام الطلب.</div>` },
+    refund: { title: "🔄 الاستبدال والاسترجاع", content: `<div style="text-align: right; line-height: 1.8;">يحق للعميل فتح الطرد ومعاينة المنتج قبل الدفع. في حال وجود عيب مصنعي، يتم الاستبدال مجاناً خلال 3 أيام.</div>` },
+    contact: { title: "📞 معلومات التواصل", content: `<div style="text-align: right; line-height: 1.8;"><strong>رقم المدير / خدمة العملاء:</strong><br><a href="tel:962781808198" style="color:var(--primary);">0781808198</a><br><br><strong>البريد الإلكتروني:</strong><br><a href="mailto:babyandtoddlerss@gmail.com" style="color:var(--primary);">babyandtoddlerss@gmail.com</a></div>` },
+    terms: { title: "⚖️ شروط الاستخدام", content: `<div style="text-align: right; line-height: 1.8;">الأسعار نهائية وتشمل الضريبة. يحق للمتجر إلغاء الطلب في حال عدم الرد على الهاتف.<br><br><strong>Disclaimer:</strong> This site is not a part of the Facebook website or Facebook Inc.</div>` }
 };
 
 window.onload = async () => {
     try {
         const res = await fetch(`${API_URL}?action=products`);
-        state.products = await res.json();
+        const rawData = await res.json();
+
+        // 🔥 فصل البانرات عن المنتجات 🔥
+        state.banners = rawData.filter(item => item.category && item.category.trim().toLowerCase() === 'banner');
+        state.products = rawData.filter(item => !item.category || item.category.trim().toLowerCase() !== 'banner');
+
         initSearchEngine();
         initApp();
         document.getElementById('loader').style.display = 'none';
-        
-        // 🌟 تشغيل مراقب السكرول (Animation Observer) 🌟
         setupScrollObserver();
     } catch(e) { 
         console.error(e);
@@ -44,27 +45,18 @@ window.onload = async () => {
     }
 };
 
-// 🌟 وظيفة Scroll Reveal (الزحلقة عند التمرير)
 function setupScrollObserver() {
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-            }
+            if (entry.isIntersecting) { entry.target.classList.add('active'); }
         });
     }, { threshold: 0.1 });
-
-    // نراقب الكروت والعناوين
     document.querySelectorAll('.card, .section-title, .hidden-stock-section').forEach(el => {
-        el.classList.add('reveal'); // إضافة كلاس الإخفاء
-        observer.observe(el);
+        el.classList.add('reveal'); observer.observe(el);
     });
 }
 
-function initSearchEngine() {
-    const options = { includeScore: true, threshold: 0.4, keys: ["name", "description", "models.name"] };
-    fuse = new Fuse(state.products, options);
-}
+function initSearchEngine() { const options = { includeScore: true, threshold: 0.4, keys: ["name", "description", "models.name"] }; fuse = new Fuse(state.products, options); }
 
 function handleSearch(query) {
     const suggestionsBox = document.getElementById('search-suggestions');
@@ -74,7 +66,7 @@ function handleSearch(query) {
         document.getElementById('exclusive-section').style.display = 'block';
         document.getElementById('best-seller-section').style.display = 'block';
         suggestionsBox.style.display = 'none';
-        setupScrollObserver(); // إعادة تفعيل الانيميشن
+        setupScrollObserver();
         return;
     }
     const results = fuse.search(query);
@@ -82,7 +74,6 @@ function handleSearch(query) {
     document.getElementById('exclusive-section').style.display = 'none';
     document.getElementById('best-seller-section').style.display = 'none';
     document.getElementById('main-products-title').innerText = `🔍 نتائج البحث عن: ${query}`;
-    
     if (filteredProducts.length > 0) {
         document.getElementById('products-grid').innerHTML = filteredProducts.map(p => productCard(p)).join('');
         const suggestionsHtml = results.slice(0, 5).map(r => {
@@ -99,33 +90,58 @@ function handleSearch(query) {
         document.getElementById('products-grid').innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:20px; color:#666;">لا توجد نتائج مطابقة 😕</div>`;
         suggestionsBox.style.display = 'none';
     }
-    setupScrollObserver(); // تفعيل الانيميشن للنتائج
+    setupScrollObserver();
 }
+
 function selectSuggestion(id) { document.getElementById('search-suggestions').style.display = 'none'; openProduct(id); }
 document.addEventListener('click', function(e) { if (!document.querySelector('.search-container').contains(e.target)) document.getElementById('search-suggestions').style.display = 'none'; });
 
-function initApp() { renderCategories(); renderSpecialSections(); renderGrid('all'); initHeroSlider(); }
-function initHeroSlider() { const slides = document.querySelectorAll('.hero-slide'); let i = 0; if(slides.length > 1) { setInterval(() => { slides[i].classList.remove('active'); i = (i + 1) % slides.length; slides[i].classList.add('active'); }, 4000); } }
+function initApp() { 
+    renderCategories(); 
+    renderSpecialSections(); 
+    renderGrid('all'); 
+    initHeroSlider(); 
+}
+
+// 🔥 تشغيل السلايدر من الشيت 🔥
+function initHeroSlider() { 
+    const sliderContainer = document.getElementById('hero-slider');
+    if (state.banners.length > 0) {
+        sliderContainer.innerHTML = state.banners.map((b, index) => {
+            const linkAttr = (b.description && b.description.startsWith('http')) 
+                ? `onclick="window.open('${b.description}', '_blank')"` 
+                : '';
+            const cursorStyle = (b.description && b.description.startsWith('http')) ? 'pointer' : 'default';
+            return `<div class="hero-slide ${index === 0 ? 'active' : ''}" style="background-image: url('${fixUrl(b.main_image)}'); cursor: ${cursorStyle}" ${linkAttr}></div>`;
+        }).join('');
+        if(state.banners.length > 1) { startHeroAutoSlide(); }
+    } 
+}
+
+function startHeroAutoSlide() {
+    const slides = document.querySelectorAll('.hero-slide'); 
+    let i = 0; 
+    clearInterval(heroInterval); 
+    heroInterval = setInterval(() => { 
+        slides[i].classList.remove('active'); 
+        i = (i + 1) % slides.length; 
+        slides[i].classList.add('active'); 
+    }, 4000); 
+}
+
 function renderCategories() { const cats = ['الكل', ...new Set(state.products.map(p => p.category).filter(c => c))]; document.getElementById('categories-nav').innerHTML = cats.map(c => `<button class="cat-btn ${c==='الكل'?'active':''}" onclick="filterByCat(this, '${c}')">${c}</button>`).join(''); }
 function filterByCat(btn, cat) { if(btn) { document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); } if (cat === 'all' || cat === 'الكل') { renderGrid('all'); document.getElementById('main-products-title').innerText = "✨ جميع المنتجات"; } else { if(cat === 'offers') { scrollToSection('exclusive-section'); } else { renderGrid(cat); document.getElementById('main-products-title').innerText = `✨ قسم ${cat}`; document.getElementById('products-grid').scrollIntoView({ behavior: 'smooth', block: 'start' }); } } setupScrollObserver(); }
 function renderSpecialSections() { 
     const offers = state.products.filter(p => String(p.is_offer).toLowerCase() === 'true'); 
     const best = state.products.filter(p => String(p.best_seller).toLowerCase() === 'true'); 
-    if(offers.length) { 
-        document.getElementById('exclusive-section').style.display = 'block'; 
-        // إضافة كلاس اللمعة (Shimmer) للعروض
-        document.getElementById('exclusive-grid').innerHTML = offers.map(p => miniCard(p, true)).join(''); 
-    } 
-    if(best.length) { 
-        document.getElementById('best-seller-section').style.display = 'block'; 
-        document.getElementById('best-seller-grid').innerHTML = best.map(p => miniCard(p, false)).join(''); 
-    } 
+    if(offers.length) { document.getElementById('exclusive-section').style.display = 'block'; document.getElementById('exclusive-grid').innerHTML = offers.map(p => miniCard(p, true)).join(''); } 
+    if(best.length) { document.getElementById('best-seller-section').style.display = 'block'; document.getElementById('best-seller-grid').innerHTML = best.map(p => miniCard(p, false)).join(''); } 
 }
 function renderGrid(cat) { const filtered = (cat === 'all' || cat === 'الكل') ? state.products : state.products.filter(p => p.category === cat); document.getElementById('products-grid').innerHTML = filtered.map(p => productCard(p)).join(''); }
 
-// إضافة كلاس reveal للكروت عند الإنشاء
-function productCard(p) { return `<div class="card reveal" onclick="openProduct(${p.id})"><img src="${fixUrl(p.main_image)}" class="card-img" loading="lazy"><div class="card-body"><div class="card-title">${p.name}</div><div class="price-container">${getPriceHtml(p)}</div></div></div>`; }
-function miniCard(p, isShimmer) { return `<div class="card reveal ${isShimmer ? 'shimmer-effect' : ''}" style="min-width:145px;" onclick="openProduct(${p.id})"><img src="${fixUrl(p.main_image)}" style="width:100%; height:110px; object-fit:contain; padding:5px;"><div style="padding:8px; text-align:center;"><div style="font-size:0.8rem; font-weight:bold; margin-bottom:5px; height:35px; overflow:hidden;">${p.name}</div><div class="price-container">${getPriceHtml(p)}</div></div></div>`; }
+// كرت المنتج (مع البادج)
+function productCard(p) { let badgeHtml = ""; if (p.real_images && p.real_images.trim().length > 5) { badgeHtml = `<div class="real-badge">📷 صور واقعية</div>`; } return `<div class="card reveal" onclick="openProduct(${p.id})">${badgeHtml}<img src="${fixUrl(p.main_image)}" class="card-img" loading="lazy"><div class="card-body"><div class="card-title">${p.name}</div><div class="price-container">${getPriceHtml(p)}</div></div></div>`; }
+function miniCard(p, isShimmer) { let badgeHtml = ""; if (p.real_images && p.real_images.trim().length > 5) { badgeHtml = `<div class="real-badge">📷</div>`; } return `<div class="card reveal ${isShimmer ? 'shimmer-effect' : ''}" style="min-width:145px;" onclick="openProduct(${p.id})">${badgeHtml}<img src="${fixUrl(p.main_image)}" style="width:100%; height:110px; object-fit:contain; padding:5px;"><div style="padding:8px; text-align:center;"><div style="font-size:0.8rem; font-weight:bold; margin-bottom:5px; height:35px; overflow:hidden;">${p.name}</div><div class="price-container">${getPriceHtml(p)}</div></div></div>`; }
 function getPriceHtml(p) { if(p.old_price && Number(p.old_price) > Number(p.base_price)) { return `<div class="old-price">${p.old_price} JOD</div><div class="price-red">${p.base_price} JOD</div>`; } return `<div class="price-normal">${p.base_price} JOD</div>`; }
 
 function openProduct(id) {
@@ -133,53 +149,64 @@ function openProduct(id) {
     state.currentProduct = p;
     state.variantTracker = {};
     state.mainQty = 1;
+    state.viewMode = 'studio'; 
 
-    let allImages = [];
-    if (p.main_image && String(p.main_image).trim()) allImages.push(String(p.main_image).trim());
+    let sImgs = [];
+    if (p.main_image && String(p.main_image).trim()) sImgs.push(String(p.main_image).trim());
     if (p.gallery) {
         let cleanGallery = String(p.gallery).replace(/(\r\n|\n|\r)/gm, ",");
         let galParts = cleanGallery.split(',').map(s => s.trim()).filter(s => s !== "");
-        allImages = [...allImages, ...galParts];
+        sImgs = [...sImgs, ...galParts];
     }
     if (p.models && p.models.length > 0) {
-        p.models.forEach(m => {
-            if (m.image && m.image.trim()) allImages.push(m.image.trim());
-            state.variantTracker[m.name] = 0;
-        });
+        p.models.forEach(m => { if (m.image && m.image.trim()) sImgs.push(m.image.trim()); state.variantTracker[m.name] = 0; });
+    }
+    state.studioImages = [...new Set(sImgs)].filter(img => img.length > 5);
+
+    state.realImages = [];
+    if (p.real_images && String(p.real_images).trim()) {
+        let cleanReal = String(p.real_images).replace(/(\r\n|\n|\r)/gm, ",");
+        state.realImages = cleanReal.split(',').map(s => s.trim()).filter(s => s.length > 5);
     }
 
-    state.currentImages = [...new Set(allImages)].filter(img => img.length > 5);
-    const thumbnailsHtml = state.currentImages.map((img, i) => `<div class="thumb-box ${i === 0 ? 'active' : ''}" onclick="manualSwitch('${img}', this)"><img src="${fixUrl(img)}"></div>`).join('');
+    state.currentImages = state.studioImages;
+    let toggleHtml = '';
+    // 🔥 زر التبديل بالنص الجديد 🔥
+    if (state.realImages.length > 0) {
+        toggleHtml = `<div class="reality-switch-container"><div class="reality-toggle-wrapper"><button class="rt-btn active" onclick="switchViewMode('studio', this)">💎 صور العرض</button><button class="rt-btn" onclick="switchViewMode('real', this)">📸 صور واقعية وفيدباك</button></div></div>`;
+    }
+    renderProductModal(p, toggleHtml);
+    checkIfInCart();
+    document.getElementById('product-modal').classList.add('active');
+    if (state.currentImages.length > 1) startProductAutoSlide();
+}
 
+function renderProductModal(p, toggleHtml) {
+    const thumbnailsHtml = state.currentImages.map((img, i) => `<div class="thumb-box ${i === 0 ? 'active' : ''}" onclick="manualSwitch('${img}', this)"><img src="${fixUrl(img)}"></div>`).join('');
     let controlsHtml = '';
     if (p.models && p.models.length > 0) {
         const variantsList = p.models.map(m => `
             <div class="variant-row">
                 <div class="variant-info" onclick="openZoomToSpecificImage('${m.image}')">
-                    <img src="${fixUrl(m.image)}" class="variant-img">
-                    <span class="variant-name">${m.name}</span>
+                    <img src="${fixUrl(m.image)}" class="variant-img"><span class="variant-name">${m.name}</span>
                 </div>
                 <div class="variant-controls">
                     <button class="v-btn" onclick="updateVariantQty('${m.name}', -1)">-</button>
-                    <span class="v-qty" id="qty-${m.name.replace(/\s/g, '')}">0</span>
+                    <span class="v-qty" id="qty-${m.name.replace(/\s/g, '')}">${state.variantTracker[m.name] || 0}</span>
                     <button class="v-btn" onclick="updateVariantQty('${m.name}', 1, '${m.image}')">+</button>
                 </div>
             </div>
         `).join('');
         controlsHtml = `<div class="variants-list">${variantsList}</div>`;
     } else {
-        controlsHtml = `<div class="main-qty-wrapper"><div class="main-qty-ctrl"><button class="mq-btn" onclick="updateMainQty(-1)">-</button><span id="main-qty-display" class="mq-display">1</span><button class="mq-btn" onclick="updateMainQty(1)">+</button></div></div>`;
+        controlsHtml = `<div class="main-qty-wrapper"><div class="main-qty-ctrl"><button class="mq-btn" onclick="updateMainQty(-1)">-</button><span id="main-qty-display" class="mq-display">${state.mainQty}</span><button class="mq-btn" onclick="updateMainQty(1)">+</button></div></div>`;
     }
-
     let priceModalHtml = `<div class="price-normal" style="font-size:1.4rem; margin:10px 0;">${p.base_price} JOD</div>`;
-    if(p.old_price && Number(p.old_price) > Number(p.base_price)) {
-        priceModalHtml = `<div style="display:flex; align-items:center; justify-content:center; gap:10px; margin:10px 0;"><span style="text-decoration:line-through; color:#999; font-size:1.1rem;">${p.old_price} JOD</span><span style="font-size:1.5rem; font-weight:900; color:#D32F2F;">${p.base_price} JOD</span></div>`;
-    }
-
+    if(p.old_price && Number(p.old_price) > Number(p.base_price)) { priceModalHtml = `<div style="display:flex; align-items:center; justify-content:center; gap:10px; margin:10px 0;"><span style="text-decoration:line-through; color:#999; font-size:1.1rem;">${p.old_price} JOD</span><span style="font-size:1.5rem; font-weight:900; color:#D32F2F;">${p.base_price} JOD</span></div>`; }
     document.getElementById('modal-sheet-content').innerHTML = `
         <div class="modal-header-sticky"><h3 style="font-family:'Marhey'; font-size:1rem; margin:0;">تفاصيل المنتج</h3><button class="close-sheet-btn" onclick="closeModal()">✕</button></div>
         <div class="modal-scroll-content">
-            <div class="gallery-wrapper"><div class="main-img-container"><button class="preview-btn" onclick="openZoom()">🔍</button><img id="main-preview" src="${fixUrl(state.currentImages[0])}" class="main-img-view" onclick="openZoom()"></div><div class="thumbnails-strip">${thumbnailsHtml}</div></div>
+            <div class="gallery-wrapper">${toggleHtml}<div class="main-img-container"><button class="preview-btn" onclick="openZoom()">🔍</button><img id="main-preview" src="${fixUrl(state.currentImages[0])}" class="main-img-view" onclick="openZoom()"></div><div class="thumbnails-strip">${thumbnailsHtml}</div></div>
             <h2 style="font-family:'Marhey'; color:var(--primary);">${p.name}</h2>
             ${priceModalHtml}
             <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:15px; text-align:right;"><p style="color:#555; line-height:1.7; font-size:0.9rem;">${p.description || 'لا يوجد وصف متاح.'}</p></div>
@@ -187,9 +214,18 @@ function openProduct(id) {
             <div class="action-area-wrapper" id="action-buttons"><button class="order-submit" onclick="addToCart()">إضافة للسلة 🛒</button></div>
         </div>
     `;
-    checkIfInCart();
-    document.getElementById('product-modal').classList.add('active');
-    if (state.currentImages.length > 1) startProductAutoSlide();
+}
+
+function switchViewMode(mode, btn) {
+    if (mode === state.viewMode) return;
+    state.viewMode = mode;
+    state.currentImages = (mode === 'real') ? state.realImages : state.studioImages;
+    document.querySelectorAll('.rt-btn').forEach(b => b.classList.remove('active', 'real'));
+    btn.classList.add('active'); if (mode === 'real') btn.classList.add('real');
+    const thumbnailsHtml = state.currentImages.map((img, i) => `<div class="thumb-box ${i === 0 ? 'active' : ''}" onclick="manualSwitch('${img}', this)"><img src="${fixUrl(img)}"></div>`).join('');
+    document.querySelector('.thumbnails-strip').innerHTML = thumbnailsHtml;
+    manualSwitch(state.currentImages[0], null);
+    startProductAutoSlide();
 }
 
 function startProductAutoSlide() {
@@ -202,16 +238,37 @@ function startProductAutoSlide() {
     }, 3000);
 }
 
-function manualSwitch(src, thumbEl) {
+function manualSwitch(src, thumbEl, skipScroll) {
     clearInterval(slideInterval);
     document.getElementById('main-preview').src = fixUrl(src);
     if(thumbEl) { document.querySelectorAll('.thumb-box').forEach(t => t.classList.remove('active')); thumbEl.classList.add('active'); } 
-    else { const index = state.currentImages.findIndex(img => fixUrl(img) === fixUrl(src)); if (index !== -1) highlightThumbnail(index); }
+    else { const index = state.currentImages.findIndex(img => fixUrl(img) === fixUrl(src)); if (index !== -1) highlightThumbnail(index, skipScroll); }
 }
-function highlightThumbnail(index) { const thumbs = document.querySelectorAll('.thumb-box'); thumbs.forEach(t => t.classList.remove('active')); if(thumbs[index]) { thumbs[index].classList.add('active'); thumbs[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); } }
+
+// 🔥🔥🔥 منع القفز (No Scroll) 🔥🔥🔥
+function highlightThumbnail(index, skipScroll) { 
+    const thumbs = document.querySelectorAll('.thumb-box'); 
+    thumbs.forEach(t => t.classList.remove('active')); 
+    if(thumbs[index]) { 
+        thumbs[index].classList.add('active'); 
+        if (!skipScroll) {
+            thumbs[index].scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' }); 
+        }
+    } 
+}
 
 function openZoomToSpecificImage(url) { if(!url) return; const fixedUrl = fixUrl(url); const index = state.currentImages.findIndex(img => fixUrl(img) === fixedUrl); state.zoomIndex = (index !== -1) ? index : 0; updateZoomView(); document.getElementById('zoom-modal').classList.add('active'); }
-function updateVariantQty(name, change, imgUrl) { if(change > 0 && imgUrl) manualSwitch(imgUrl); if (!state.variantTracker[name]) state.variantTracker[name] = 0; state.variantTracker[name] += change; if (state.variantTracker[name] < 0) state.variantTracker[name] = 0; const elId = `qty-${name.replace(/\s/g, '')}`; if(document.getElementById(elId)) document.getElementById(elId).innerText = state.variantTracker[name]; }
+
+// 🔥 تمرير أمر منع القفز للزر 🔥
+function updateVariantQty(name, change, imgUrl) {
+    if(change > 0 && imgUrl) { manualSwitch(imgUrl, null, true); }
+    if (!state.variantTracker[name]) state.variantTracker[name] = 0;
+    state.variantTracker[name] += change;
+    if (state.variantTracker[name] < 0) state.variantTracker[name] = 0;
+    const elId = `qty-${name.replace(/\s/g, '')}`;
+    if(document.getElementById(elId)) document.getElementById(elId).innerText = state.variantTracker[name];
+}
+
 function updateMainQty(change) { state.mainQty += change; if (state.mainQty < 1) state.mainQty = 1; document.getElementById('main-qty-display').innerText = state.mainQty; }
 
 function addToCart() {
@@ -240,15 +297,8 @@ function addToCart() {
         state.mainQty = 1;
         document.getElementById('main-qty-display').innerText = "1";
     }
-    updateBadge(); 
-    showToast(`✅ تمت إضافة ${itemsAddedCount} قطعة للسلة!`); 
-    
-    // 🌟 تفعيل هزة السلة 🌟
-    const cartBtn = document.querySelector('.cart-btn');
-    cartBtn.classList.add('shake');
-    setTimeout(() => cartBtn.classList.remove('shake'), 500);
-    
-    checkIfInCart();
+    updateBadge(); showToast(`✅ تمت إضافة ${itemsAddedCount} قطعة للسلة!`); 
+    const cartBtn = document.querySelector('.cart-btn'); cartBtn.classList.add('shake'); setTimeout(() => cartBtn.classList.remove('shake'), 500); checkIfInCart();
 }
 
 function openPolicy(type) {
