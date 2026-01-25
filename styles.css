@@ -2,7 +2,6 @@
     --primary: #00B4D8; 
     --primary-dark: #0077B6; 
     --accent: #FFB703; 
-    /* تدرج لوني فخم للهوية (للبادجات والأزرار المميزة) */
     --brand-gradient: linear-gradient(135deg, var(--primary), var(--accent));
     --exclusive-glow: #ff1a1a;
     --bg: #F8FDFF; 
@@ -25,61 +24,28 @@ body {
     padding-bottom: calc(20px + var(--safe-bottom));
 }
 
-/* Animations */
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes btnBounce { 0% { transform: scale(1); } 40% { transform: scale(0.9); } 70% { transform: scale(1.05); } 100% { transform: scale(1); } }
 @keyframes cartShake { 0% { transform: rotate(0deg); } 25% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } 75% { transform: rotate(-5deg); } 100% { transform: rotate(0deg); } }
 @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-/* Scroll Reveal */
 .reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 .reveal.active { opacity: 1; transform: translateY(0); }
 
-/* =========================================
-   💎 ROYAL LOADER (فخم، هادئ، ثابت)
-   ========================================= */
-.loader-overlay { 
-    position: fixed; inset: 0; background: #fff; z-index: 9999; 
-    display: flex; align-items: center; justify-content: center; 
-}
-.loader-content { 
-    display: flex; flex-direction: column; align-items: center; gap: 10px; 
-}
-/* اللوجو: يظهر بتركيز ناعم (Focus) */
-.brand-box {
-    font-family: 'Marhey', sans-serif; 
-    font-size: 3.5rem; font-weight: 700;
-    opacity: 0; transform: scale(0.8);
-    animation: logoFocus 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards;
-}
+/* 💎 ROYAL LOADER */
+.loader-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; }
+.loader-content { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.brand-box { font-family: 'Marhey', sans-serif; font-size: 3.5rem; font-weight: 700; opacity: 0; transform: scale(0.8); animation: logoFocus 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 .brand-box .brand-main { color: var(--primary); }
 .brand-box .brand-sub { color: var(--accent); }
-
-/* قناع النص */
 .slogan-mask { overflow: hidden; padding: 5px; }
+.loader-slogan { font-family: 'Tajawal', sans-serif; font-size: 1rem; color: var(--text); font-weight: bold; margin: 0; transform: translateY(100%); opacity: 0; animation: textSlideUp 1s cubic-bezier(0.25, 1, 0.5, 1) 0.5s forwards; }
+@keyframes logoFocus { 0% { opacity: 0; transform: scale(0.8) translateY(20px); filter: blur(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); } }
+@keyframes textSlideUp { 0% { opacity: 0; transform: translateY(120%); } 100% { opacity: 1; transform: translateY(0); } }
 
-/* النص: ينزلق من الأسفل */
-.loader-slogan {
-    font-family: 'Tajawal', sans-serif; font-size: 1rem; color: var(--text);
-    font-weight: bold; margin: 0;
-    transform: translateY(100%); opacity: 0;
-    animation: textSlideUp 1s cubic-bezier(0.25, 1, 0.5, 1) 0.5s forwards;
-}
-
-@keyframes logoFocus {
-    0% { opacity: 0; transform: scale(0.8) translateY(20px); filter: blur(10px); }
-    100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); }
-}
-@keyframes textSlideUp {
-    0% { opacity: 0; transform: translateY(120%); }
-    100% { opacity: 1; transform: translateY(0); }
-}
-
-/* Top Announcement Bar */
+/* UI Elements */
 .top-bar { background: linear-gradient(90deg, var(--primary-dark), var(--primary), var(--primary-dark)); background-size: 200% 200%; animation: gradientBG 5s ease infinite; color: #fff; text-align: center; padding: 10px; font-size: 0.85rem; font-weight: bold; position: relative; z-index: 1001; box-shadow: 0 2px 10px rgba(0, 180, 216, 0.2); letter-spacing: 0.5px; }
-
-/* Navbar */
 .navbar { background: #fff; position: sticky; top: 0; z-index: 1000; padding: 10px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.04); width: 100%; transition: top 0.3s; }
 .nav-content { display: flex; justify-content: space-between; align-items: center; width: 94%; max-width: var(--max-w); margin: 0 auto; }
 .menu-btn { display: flex; flex-direction: column; gap: 5px; cursor: pointer; padding: 5px; }
@@ -91,7 +57,6 @@ body {
 .cart-btn.shake { animation: cartShake 0.5s ease-in-out; color: var(--accent); }
 .badge { position: absolute; top: -6px; right: -6px; background: #FF3D00; color: #fff; width: 18px; height: 18px; border-radius: 50%; font-size: 0.7rem; display: none; align-items: center; justify-content: center; font-weight: bold; transition: transform 0.2s; }
 
-/* Search */
 .search-container { margin-top: 15px; margin-bottom: 10px; width: 94%; max-width: var(--max-w); margin-left: auto; margin-right: auto; }
 .search-wrapper { position: relative; width: 100%; }
 #search-input { width: 100%; padding: 12px 20px; border-radius: 50px; border: 1px solid #ddd; outline: none; transition: 0.3s; }
@@ -104,7 +69,6 @@ body {
 .s-name { font-size: 0.9rem; font-weight: bold; color: #333; }
 .s-match { font-size: 0.75rem; color: var(--primary); }
 
-/* Layout & Grid */
 .container { width: 94%; max-width: var(--max-w); margin: 0 auto; }
 .hero-slider { height: 170px; margin-bottom: 25px; border-radius: var(--radius); overflow: hidden; position: relative; box-shadow: 0 5px 15px rgba(0,0,0,0.1); animation: fadeInUp 0.8s ease-out; }
 .hero-slide { width: 100%; height: 100%; position: absolute; top: 0; left: 0; background-size: cover; background-position: center; opacity: 0; transition: opacity 0.8s ease; }
@@ -115,25 +79,13 @@ body {
 .horizontal-scroll { display: flex; gap: 12px; overflow-x: auto; padding: 10px 5px; scrollbar-width: none; width: 94%; max-width: var(--max-w); margin: 0 auto; }
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 94%; max-width: var(--max-w); margin: 0 auto; padding-bottom: 40px; }
 
-/* Product Card */
 .card { background: #fff; border-radius: 15px; overflow: hidden; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.03); border: 1px solid #f9f9f9; display: flex; flex-direction: column; cursor: pointer; transition: transform 0.3s ease, box-shadow 0.3s ease; }
 .card:active { transform: scale(0.98); }
 .card:hover { transform: translateY(-5px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
 .card-img { width: 100%; height: 160px; object-fit: contain; padding: 10px; background: #fff; transition: transform 0.3s ease; }
 .card:hover .card-img { transform: scale(1.05); }
 
-/* 🔥 بادج الصور الواقعية الملون (Marhey + Gradient) 🔥 */
-.real-badge {
-    position: absolute; top: 8px; right: 8px;
-    background: var(--brand-gradient); /* لون الهوية */
-    color: #fff;
-    font-family: 'Marhey', sans-serif; /* الخط المميز */
-    font-size: 0.7rem; font-weight: bold; padding: 5px 10px;
-    border-radius: 12px; display: flex; align-items: center; gap: 4px;
-    z-index: 5; box-shadow: 0 2px 8px rgba(0, 180, 216, 0.3);
-}
-
-/* Exclusive Shimmer */
+.real-badge { position: absolute; top: 8px; right: 8px; background: var(--brand-gradient); color: #fff; font-family: 'Marhey', sans-serif; font-size: 0.7rem; font-weight: bold; padding: 5px 10px; border-radius: 12px; display: flex; align-items: center; gap: 4px; z-index: 5; box-shadow: 0 2px 8px rgba(0, 180, 216, 0.3); }
 .card.shimmer-effect { position: relative; overflow: hidden; border: 2px solid var(--exclusive-glow); box-shadow: 0 0 15px rgba(255, 26, 26, 0.5); transition: all 0.3s ease; }
 .card.shimmer-effect:hover { box-shadow: 0 0 25px rgba(255, 26, 26, 0.8); }
 .card.shimmer-effect::after { content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(to right, transparent 0%, rgba(255, 255, 255, 0.6) 50%, transparent 100%); background-size: 200% 100%; animation: shimmer 3s infinite linear; pointer-events: none; }
@@ -145,14 +97,11 @@ body {
 .price-red { color: #D32F2F; font-weight: 800; font-size: 1rem; }
 .price-normal { color: #2B2D42; font-weight: 800; font-size: 1rem; }
 
-/* Reality Switch */
 .reality-toggle-wrapper { display: flex; background: #f0f0f0; border-radius: 50px; padding: 4px; margin: 10px auto; width: fit-content; box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); }
 .rt-btn { padding: 8px 20px; border: none; border-radius: 50px; font-family: 'Tajawal'; font-weight: bold; font-size: 0.9rem; cursor: pointer; transition: all 0.3s ease; background: transparent; color: #666; display: flex; align-items: center; gap: 6px; }
 .rt-btn.active { background: #fff; color: var(--text); box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-/* 🔥 زر التبديل يأخذ لون الهوية 🔥 */
 .rt-btn.active.real { background: var(--brand-gradient); color: #fff; }
 
-/* Modals Fixed */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 5000; display: none; align-items: flex-end; backdrop-filter: blur(3px); transition: opacity 0.3s; opacity: 0; pointer-events: none; }
 .modal-overlay.active { opacity: 1; pointer-events: auto; display: flex; }
 .modal-sheet { background: #fff; width: 100%; border-radius: 25px 25px 0 0; max-height: 85dvh; display: flex; flex-direction: column; position: relative; overflow: hidden; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); padding-bottom: var(--safe-bottom); }
@@ -162,7 +111,6 @@ body {
 .close-sheet-btn:active { transform: scale(0.9); background: #e0e0e0; }
 .modal-scroll-content { padding: 20px; overflow-y: auto; flex-grow: 1; padding-bottom: 80px; -webkit-overflow-scrolling: touch; scroll-behavior: smooth; }
 
-/* Gallery */
 .gallery-wrapper { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
 .main-img-container { width: 100%; height: 300px; background: #fff; border-radius: 12px; border: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; transition: opacity 0.3s; }
 .main-img-view { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s; }
@@ -172,7 +120,6 @@ body {
 .thumb-box img { width: 100%; height: 100%; object-fit: cover; }
 .thumb-box.active { border-color: var(--primary); transform: scale(1.1); box-shadow: 0 4px 10px rgba(0, 180, 216, 0.25); }
 
-/* Variants & Buttons */
 .variants-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
 .variant-row { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 8px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); transition: 0.2s; }
 .variant-row:hover { border-color: var(--primary); }
@@ -181,7 +128,6 @@ body {
 .variant-name { font-weight: bold; font-size: 0.9rem; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .variant-controls { display: flex; align-items: center; gap: 12px; background: #f8f9fa; border-radius: 8px; padding: 4px 8px; }
 
-/* Large Touch Buttons */
 .v-btn, .mq-btn, .cart-mini-btn { width: 44px; height: 44px; border: none; background: #fff; border-radius: 10px; font-weight: bold; color: var(--primary); cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; transition: transform 0.1s; }
 .v-btn:active, .mq-btn:active, .cart-mini-btn:active { transform: scale(0.9); background: #eee; }
 .v-qty, .mq-display, .cart-mini-qty { font-weight: bold; width: 24px; text-align: center; font-size: 1.1rem; }
@@ -189,7 +135,6 @@ body {
 .main-qty-wrapper { display: flex; justify-content: center; margin-top: 20px; }
 .main-qty-ctrl { display: flex; align-items: center; gap: 20px; background: #f5f5f5; padding: 10px 20px; border-radius: 15px; }
 
-/* Action Area */
 .action-area-wrapper { margin-top: 20px; }
 .order-submit { width: 100%; padding: 15px; background: var(--accent); color: #fff; border: none; border-radius: 12px; font-weight: bold; font-size: 1rem; cursor: pointer; box-shadow: 0 4px 15px rgba(255, 183, 3, 0.3); transition: transform 0.2s; }
 .order-submit:active { transform: scale(0.96); }

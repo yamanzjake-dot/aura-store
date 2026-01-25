@@ -4,7 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Aura & Luxe</title>
+    
     <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Tajawal:wght@400;500;700;800&display=block" rel="stylesheet">
+    
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    
+    // 👇 هنا حطينا الـ ID تبعك
+    fbq('init', '1620969812250136'); 
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=1620969812250136&ev=PageView&noscript=1"
+    /></noscript>
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
@@ -63,7 +82,7 @@
 
     <main class="container">
         <div id="hero-slider" class="hero-slider">
-            <div class="hero-slide active" style="background-image: url('https://via.placeholder.com/800x400/00B4D8/ffffff?text=Loading+Banners...');"></div>
+            <div class="hero-slide active" style="background-image: url('https://via.placeholder.com/800x400/00B4D8/ffffff?text=Loading...');"></div>
         </div>
 
         <div id="categories-nav" class="categories-wrapper">

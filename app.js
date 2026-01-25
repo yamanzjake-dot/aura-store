@@ -3,7 +3,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwhp-xUXRfgU0shX-ub04QO
 
 let state = { 
     products: [], 
-    banners: [], // مصفوفة البانرات
+    banners: [], // مصفوفة خاصة للبانرات
     cart: [], 
     currentProduct: null, 
     studioImages: [], 
@@ -15,9 +15,10 @@ let state = {
     mainQty: 1 
 };
 let slideInterval; 
-let heroInterval; // للبانرات
+let heroInterval; // للبانرات العلوية
 let fuse; 
 
+// النصوص وسياسات الموقع
 const sitePolicies = {
     privacy: { title: "🔒 سياسة الخصوصية", content: `<div style="text-align: right; line-height: 1.8;">نحن في Aura & Luxe نلتزم بحماية خصوصيتك. نقوم بجمع اسمك، رقم هاتفك، وعنوانك فقط لغايات توصيل الطلب.</div>` },
     shipping: { title: "📦 الشحن والتوصيل", content: `<div style="text-align: right; line-height: 1.8;">نقوم بالتوصيل لجميع محافظات المملكة.<br>عمان والزرقاء: 24-48 ساعة.<br>باقي المحافظات: 48-72 ساعة.<br>رسوم التوصيل: 3 دنانير تضاف عند إتمام الطلب.</div>` },
@@ -31,16 +32,20 @@ window.onload = async () => {
         const res = await fetch(`${API_URL}?action=products`);
         const rawData = await res.json();
 
-        // 🔥 فصل البانرات عن المنتجات 🔥
+        // 🔥 فرز البيانات: البانرات لحال والمنتجات لحال 🔥
         state.banners = rawData.filter(item => item.category && item.category.trim().toLowerCase() === 'banner');
         state.products = rawData.filter(item => !item.category || item.category.trim().toLowerCase() !== 'banner');
 
         initSearchEngine();
         initApp();
+        
+        // إخفاء اللودر
         document.getElementById('loader').style.display = 'none';
+        
         setupScrollObserver();
     } catch(e) { 
-        console.error(e);
+        console.error("Error loading data:", e);
+        // في حال الخطأ نخفي اللودر عشان الموقع ما يعلق
         document.getElementById('loader').style.display = 'none';
     }
 };
@@ -100,22 +105,36 @@ function initApp() {
     renderCategories(); 
     renderSpecialSections(); 
     renderGrid('all'); 
-    initHeroSlider(); 
+    initHeroSlider(); // تشغيل السلايدر الديناميكي
 }
 
-// 🔥 تشغيل السلايدر من الشيت 🔥
+// 🔥 تشغيل السلايدر بناءً على البانرات من الشيت 🔥
 function initHeroSlider() { 
     const sliderContainer = document.getElementById('hero-slider');
+    
+    // إذا وجدنا بانرات في الشيت
     if (state.banners.length > 0) {
         sliderContainer.innerHTML = state.banners.map((b, index) => {
+            // إضافة خاصية الضغط على البانر إذا كان في الوصف رابط
             const linkAttr = (b.description && b.description.startsWith('http')) 
                 ? `onclick="window.open('${b.description}', '_blank')"` 
                 : '';
+            
+            // ستايل المؤشر
             const cursorStyle = (b.description && b.description.startsWith('http')) ? 'pointer' : 'default';
-            return `<div class="hero-slide ${index === 0 ? 'active' : ''}" style="background-image: url('${fixUrl(b.main_image)}'); cursor: ${cursorStyle}" ${linkAttr}></div>`;
+
+            return `<div class="hero-slide ${index === 0 ? 'active' : ''}" 
+                 style="background-image: url('${fixUrl(b.main_image)}'); cursor: ${cursorStyle}"
+                 ${linkAttr}>
+            </div>`;
         }).join('');
-        if(state.banners.length > 1) { startHeroAutoSlide(); }
+        
+        // إذا كان هناك أكثر من بانر، شغل التقليب التلقائي
+        if(state.banners.length > 1) { 
+            startHeroAutoSlide();
+        }
     } 
+    // إذا لم توجد بانرات، الكود سيبقي على الـ HTML الافتراضي (إذا موجود) أو يتركه فارغاً
 }
 
 function startHeroAutoSlide() {
@@ -126,7 +145,7 @@ function startHeroAutoSlide() {
         slides[i].classList.remove('active'); 
         i = (i + 1) % slides.length; 
         slides[i].classList.add('active'); 
-    }, 4000); 
+    }, 4000); // كل 4 ثواني
 }
 
 function renderCategories() { const cats = ['الكل', ...new Set(state.products.map(p => p.category).filter(c => c))]; document.getElementById('categories-nav').innerHTML = cats.map(c => `<button class="cat-btn ${c==='الكل'?'active':''}" onclick="filterByCat(this, '${c}')">${c}</button>`).join(''); }
@@ -139,17 +158,29 @@ function renderSpecialSections() {
 }
 function renderGrid(cat) { const filtered = (cat === 'all' || cat === 'الكل') ? state.products : state.products.filter(p => p.category === cat); document.getElementById('products-grid').innerHTML = filtered.map(p => productCard(p)).join(''); }
 
-// كرت المنتج (مع البادج)
+// كرت المنتج (مع بادج الصور الواقعية)
 function productCard(p) { let badgeHtml = ""; if (p.real_images && p.real_images.trim().length > 5) { badgeHtml = `<div class="real-badge">📷 صور واقعية</div>`; } return `<div class="card reveal" onclick="openProduct(${p.id})">${badgeHtml}<img src="${fixUrl(p.main_image)}" class="card-img" loading="lazy"><div class="card-body"><div class="card-title">${p.name}</div><div class="price-container">${getPriceHtml(p)}</div></div></div>`; }
 function miniCard(p, isShimmer) { let badgeHtml = ""; if (p.real_images && p.real_images.trim().length > 5) { badgeHtml = `<div class="real-badge">📷</div>`; } return `<div class="card reveal ${isShimmer ? 'shimmer-effect' : ''}" style="min-width:145px;" onclick="openProduct(${p.id})">${badgeHtml}<img src="${fixUrl(p.main_image)}" style="width:100%; height:110px; object-fit:contain; padding:5px;"><div style="padding:8px; text-align:center;"><div style="font-size:0.8rem; font-weight:bold; margin-bottom:5px; height:35px; overflow:hidden;">${p.name}</div><div class="price-container">${getPriceHtml(p)}</div></div></div>`; }
 function getPriceHtml(p) { if(p.old_price && Number(p.old_price) > Number(p.base_price)) { return `<div class="old-price">${p.old_price} JOD</div><div class="price-red">${p.base_price} JOD</div>`; } return `<div class="price-normal">${p.base_price} JOD</div>`; }
 
+// فتح المنتج
 function openProduct(id) {
     const p = state.products.find(x => x.id == id);
     state.currentProduct = p;
     state.variantTracker = {};
     state.mainQty = 1;
     state.viewMode = 'studio'; 
+
+    // 🔥 تتبع فتح المنتج (ViewContent) 🔥
+    if (typeof fbq !== 'undefined') {
+        fbq('track', 'ViewContent', { 
+            content_name: p.name, 
+            content_ids: [p.id],
+            content_type: 'product',
+            value: p.base_price,
+            currency: 'JOD' 
+        });
+    }
 
     let sImgs = [];
     if (p.main_image && String(p.main_image).trim()) sImgs.push(String(p.main_image).trim());
@@ -171,7 +202,7 @@ function openProduct(id) {
 
     state.currentImages = state.studioImages;
     let toggleHtml = '';
-    // 🔥 زر التبديل بالنص الجديد 🔥
+    // زر التبديل الجديد
     if (state.realImages.length > 0) {
         toggleHtml = `<div class="reality-switch-container"><div class="reality-toggle-wrapper"><button class="rt-btn active" onclick="switchViewMode('studio', this)">💎 صور العرض</button><button class="rt-btn" onclick="switchViewMode('real', this)">📸 صور واقعية وفيدباك</button></div></div>`;
     }
@@ -245,7 +276,6 @@ function manualSwitch(src, thumbEl, skipScroll) {
     else { const index = state.currentImages.findIndex(img => fixUrl(img) === fixUrl(src)); if (index !== -1) highlightThumbnail(index, skipScroll); }
 }
 
-// 🔥🔥🔥 منع القفز (No Scroll) 🔥🔥🔥
 function highlightThumbnail(index, skipScroll) { 
     const thumbs = document.querySelectorAll('.thumb-box'); 
     thumbs.forEach(t => t.classList.remove('active')); 
@@ -299,6 +329,17 @@ function addToCart() {
     }
     updateBadge(); showToast(`✅ تمت إضافة ${itemsAddedCount} قطعة للسلة!`); 
     const cartBtn = document.querySelector('.cart-btn'); cartBtn.classList.add('shake'); setTimeout(() => cartBtn.classList.remove('shake'), 500); checkIfInCart();
+
+    // 🔥 تتبع الإضافة للسلة (AddToCart) 🔥
+    if (itemsAddedCount > 0 && typeof fbq !== 'undefined') {
+        fbq('track', 'AddToCart', {
+            content_name: state.currentProduct.name,
+            content_ids: [state.currentProduct.id],
+            content_type: 'product',
+            value: state.currentProduct.base_price,
+            currency: 'JOD'
+        });
+    }
 }
 
 function openPolicy(type) {
@@ -316,7 +357,47 @@ function checkIfInCart() { const container = document.getElementById('action-but
 function updateCartQty(index, change) { state.cart[index].qty += change; if (state.cart[index].qty <= 0) state.cart.splice(index, 1); updateBadge(); openCheckout(); }
 function updateBadge() { const b = document.getElementById('cart-badge'); const totalQty = state.cart.reduce((s, i) => s + i.qty, 0); b.innerText = totalQty; b.style.display = totalQty > 0 ? 'flex' : 'none'; }
 function openCheckout() { if(!state.cart.length) { document.getElementById('cart-content-wrapper').innerHTML = `<div class="empty-cart-view"><span class="empty-icon">🛒</span><div class="empty-text">سلتك فارغة</div><button class="shop-now-btn" onclick="closeCheckout()">تسوّق الآن</button></div>`; document.getElementById('checkout-modal').classList.add('active'); return; } let total = state.cart.reduce((s, i) => s + (Number(i.base_price) * i.qty), 0); document.getElementById('cart-content-wrapper').innerHTML = `<div class="delivery-note">🚚 التوصيل خلال 24-48 ساعة</div><div id="cart-items" class="cart-list">${state.cart.map((i, idx) => `<div class="cart-item"><div class="cart-info"><span style="font-weight:bold;color:#555;">${i.name}</span><div class="cart-qty-ctrl"><button class="cart-mini-btn" onclick="updateCartQty(${idx}, -1)">-</button><span class="cart-mini-qty">${i.qty}</span><button class="cart-mini-btn" onclick="updateCartQty(${idx}, 1)">+</button></div></div><span style="font-weight:bold;color:#2B2D42;">${(i.base_price * i.qty).toFixed(2)}</span></div>`).join('')}</div><div id="total-box" class="total-display"><div style="margin-top:10px;padding-top:10px;border-top:2px dashed #ddd;">الإجمالي: <span style="font-size:1.3rem;">${(total+3).toFixed(2)} JOD</span></div></div><form onsubmit="submitOrder(event)"><input type="text" id="cust-name" placeholder="الاسم" required class="form-input"><input type="tel" id="cust-phone" placeholder="الهاتف" required class="form-input"><select id="cust-city" required class="form-input"><option value="" disabled selected>المحافظة...</option><option>عمان</option><option>إربد</option><option>الزرقاء</option><option>السلط</option><option>العقبة</option><option>مادبا</option><option>جرش</option><option>عجلون</option><option>الكرك</option><option>الطفيلة</option><option>معان</option><option>المفرق</option></select><textarea id="cust-address" placeholder="العنوان..." required class="form-input address-input"></textarea><button type="submit" id="submit-btn" class="order-submit">تأكيد الطلب 🚀</button></form>`; document.getElementById('checkout-modal').classList.add('active'); }
-function submitOrder(e) { e.preventDefault(); const btn = document.getElementById('submit-btn'); btn.innerText = "جاري الإرسال..."; btn.disabled = true; const data = { name: document.getElementById('cust-name').value, phone: document.getElementById('cust-phone').value, city: document.getElementById('cust-city').value, address: document.getElementById('cust-address').value, cart: state.cart, total: document.getElementById('total-box').innerText.replace('الإجمالي:', '').trim() }; fetch(API_URL + "?action=order", { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).catch(console.error); let items = state.cart.map(i => `- ${i.name} (x${i.qty})`).join('%0A'); window.open(`https://wa.me/962781591754?text=*طلب جديد 🛒*%0A%0A👤 ${data.name}%0A📱 ${data.phone}%0A📍 ${data.city}%0A🏠 ${data.address}%0A%0A📦 *الطلبات:*%0A${items}%0A%0A💰 *${data.total}*`, '_blank'); btn.innerText = "تأكيد الطلب 🚀"; btn.disabled = false; state.cart = []; updateBadge(); closeCheckout(); }
+
+function submitOrder(e) { 
+    e.preventDefault(); 
+    const btn = document.getElementById('submit-btn'); 
+    btn.innerText = "جاري الإرسال..."; 
+    btn.disabled = true; 
+    
+    const data = { 
+        name: document.getElementById('cust-name').value, 
+        phone: document.getElementById('cust-phone').value, 
+        city: document.getElementById('cust-city').value, 
+        address: document.getElementById('cust-address').value, 
+        cart: state.cart, 
+        total: document.getElementById('total-box').innerText.replace('الإجمالي:', '').trim() 
+    }; 
+
+    // 🔥 تتبع الشراء (Purchase) 🔥
+    // نحسب القيمة الإجمالية
+    const totalValue = state.cart.reduce((s, i) => s + (Number(i.base_price) * i.qty), 0);
+    
+    if (typeof fbq !== 'undefined') {
+        fbq('track', 'Purchase', {
+            value: totalValue,
+            currency: 'JOD',
+            num_items: state.cart.length,
+            content_type: 'product'
+        });
+    }
+
+    fetch(API_URL + "?action=order", { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).catch(console.error); 
+    
+    let items = state.cart.map(i => `- ${i.name} (x${i.qty})`).join('%0A'); 
+    window.open(`https://wa.me/962781591754?text=*طلب جديد 🛒*%0A%0A👤 ${data.name}%0A📱 ${data.phone}%0A📍 ${data.city}%0A🏠 ${data.address}%0A%0A📦 *الطلبات:*%0A${items}%0A%0A💰 *${data.total}*`, '_blank'); 
+    
+    btn.innerText = "تأكيد الطلب 🚀"; 
+    btn.disabled = false; 
+    state.cart = []; 
+    updateBadge(); 
+    closeCheckout(); 
+}
+
 function closeModal() { document.getElementById('product-modal').classList.remove('active'); clearInterval(slideInterval); }
 function closeCheckout() { document.getElementById('checkout-modal').classList.remove('active'); }
 function closePolicy() { document.getElementById('policy-modal').classList.remove('active'); }
