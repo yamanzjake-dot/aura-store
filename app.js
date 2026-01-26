@@ -238,7 +238,6 @@ function openProduct(id) {
     if (state.currentImages.length > 1) startProductAutoSlide();
 }
 
-// 🔥 تم تحديث هذه الدالة لتضع زر الشراء في الأسفل (Sticky) 🔥
 function renderProductModal(p, toggleHtml) {
     const thumbnailsHtml = state.currentImages.map((img, i) => `<div class="thumb-box ${i === 0 ? 'active' : ''}" onclick="manualSwitch('${img}', this)"><img src="${fixUrl(img)}"></div>`).join('');
     let controlsHtml = '';
@@ -261,8 +260,6 @@ function renderProductModal(p, toggleHtml) {
     }
     let priceModalHtml = `<div class="price-normal" style="font-size:1.4rem; margin:10px 0;">${p.base_price} JOD</div>`;
     if(p.old_price && Number(p.old_price) > Number(p.base_price)) { priceModalHtml = `<div style="display:flex; align-items:center; justify-content:center; gap:10px; margin:10px 0;"><span style="text-decoration:line-through; color:#999; font-size:1.1rem;">${p.old_price} JOD</span><span style="font-size:1.5rem; font-weight:900; color:#D32F2F;">${p.base_price} JOD</span></div>`; }
-    
-    // فصل المحتوى عن زر الشراء
     document.getElementById('modal-sheet-content').innerHTML = `
         <div class="modal-header-sticky"><h3 style="font-family:'Marhey'; font-size:1rem; margin:0;">تفاصيل المنتج</h3><button class="close-sheet-btn" onclick="closeModal()">✕</button></div>
         <div class="modal-scroll-content">
@@ -360,12 +357,15 @@ function addToCart() {
     updateBadge(); showToast(`✅ تمت إضافة ${itemsAddedCount} قطعة للسلة!`); 
     const cartBtn = document.querySelector('.cart-btn'); cartBtn.classList.add('shake'); setTimeout(() => cartBtn.classList.remove('shake'), 500); checkIfInCart();
 
+    // 🔥 تعديل: إرسال القيمة الإجمالية للمنتجات المضافة (وليس سعر القطعة الواحدة) 🔥
+    const totalAddedValue = state.currentProduct.base_price * itemsAddedCount;
+
     if (itemsAddedCount > 0 && typeof fbq !== 'undefined') {
         fbq('track', 'AddToCart', {
             content_name: state.currentProduct.name,
             content_ids: [state.currentProduct.id],
             content_type: 'product',
-            value: state.currentProduct.base_price,
+            value: totalAddedValue, 
             currency: 'JOD'
         });
     }
@@ -402,11 +402,13 @@ function submitOrder(e) {
         total: document.getElementById('total-box').innerText.replace('الإجمالي:', '').trim() 
     }; 
 
+    // 🔥 تعديل: إضافة 3 دنانير توصيل لقيمة الشراء المرسلة لفيسبوك 🔥
     const totalValue = state.cart.reduce((s, i) => s + (Number(i.base_price) * i.qty), 0);
-    
+    const grandTotal = totalValue + 3; // إضافة التوصيل
+
     if (typeof fbq !== 'undefined') {
         fbq('track', 'Purchase', {
-            value: totalValue,
+            value: grandTotal, 
             currency: 'JOD',
             num_items: state.cart.length,
             content_type: 'product'
