@@ -18,7 +18,7 @@ let slideInterval;
 let heroInterval; 
 let fuse; 
 
-// 🔥 النصوص القانونية الكاملة 🔥
+// 🔥 النصوص القانونية الأصلية (كما وصلتنا منك بالحرف) 🔥
 const sitePolicies = {
     privacy: { 
         title: "🔒 سياسة الخصوصية", 
@@ -80,10 +80,21 @@ window.onload = async () => {
         const rawData = await res.json();
         state.banners = rawData.filter(item => item.category && item.category.trim().toLowerCase() === 'banner');
         state.products = rawData.filter(item => !item.category || item.category.trim().toLowerCase() !== 'banner');
+        
         initSearchEngine();
         initApp();
+        
         document.getElementById('loader').style.display = 'none';
         setupScrollObserver();
+
+        // 🔥 تشغيل الرابط المباشر للمنتج 🔥
+        const urlParams = new URLSearchParams(window.location.search);
+        const productId = urlParams.get('id');
+        if (productId) {
+            const p = state.products.find(x => x.id == productId);
+            if (p) openProduct(productId);
+        }
+
     } catch(e) { 
         console.error("Error loading data:", e);
         document.getElementById('loader').style.display = 'none';
@@ -194,6 +205,12 @@ function getPriceHtml(p) { if(p.old_price && Number(p.old_price) > Number(p.base
 
 function openProduct(id) {
     const p = state.products.find(x => x.id == id);
+    if (!p) return;
+
+    // تغيير الرابط
+    const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + id;
+    window.history.pushState({ path: newUrl }, '', newUrl);
+
     state.currentProduct = p;
     state.variantTracker = {};
     state.mainQty = 1;
@@ -260,13 +277,17 @@ function renderProductModal(p, toggleHtml) {
     }
     let priceModalHtml = `<div class="price-normal" style="font-size:1.4rem; margin:10px 0;">${p.base_price} JOD</div>`;
     if(p.old_price && Number(p.old_price) > Number(p.base_price)) { priceModalHtml = `<div style="display:flex; align-items:center; justify-content:center; gap:10px; margin:10px 0;"><span style="text-decoration:line-through; color:#999; font-size:1.1rem;">${p.old_price} JOD</span><span style="font-size:1.5rem; font-weight:900; color:#D32F2F;">${p.base_price} JOD</span></div>`; }
+    
+    // 🔥 تكبير خط الوصف هنا 🔥
     document.getElementById('modal-sheet-content').innerHTML = `
         <div class="modal-header-sticky"><h3 style="font-family:'Marhey'; font-size:1rem; margin:0;">تفاصيل المنتج</h3><button class="close-sheet-btn" onclick="closeModal()">✕</button></div>
         <div class="modal-scroll-content">
             <div class="gallery-wrapper">${toggleHtml}<div class="main-img-container"><button class="preview-btn" onclick="openZoom()">🔍</button><img id="main-preview" src="${fixUrl(state.currentImages[0])}" class="main-img-view" onclick="openZoom()"></div><div class="thumbnails-strip">${thumbnailsHtml}</div></div>
             <h2 style="font-family:'Marhey'; color:var(--primary);">${p.name}</h2>
             ${priceModalHtml}
-            <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:15px; text-align:right;"><p style="color:#555; line-height:1.7; font-size:0.9rem;">${p.description || 'لا يوجد وصف متاح.'}</p></div>
+            <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:15px; text-align:right;">
+                <p style="color:#555; line-height:1.7; font-size:1.1rem;">${p.description || 'لا يوجد وصف متاح.'}</p>
+            </div>
             <h3 style="font-size:1rem; margin-bottom:10px;">اختر الكمية والموديل:</h3>${controlsHtml}
         </div>
         <div class="modal-footer-sticky" id="action-buttons">
@@ -300,8 +321,14 @@ function startProductAutoSlide() {
 function manualSwitch(src, thumbEl, skipScroll) {
     clearInterval(slideInterval);
     document.getElementById('main-preview').src = fixUrl(src);
-    if(thumbEl) { document.querySelectorAll('.thumb-box').forEach(t => t.classList.remove('active')); thumbEl.classList.add('active'); } 
-    else { const index = state.currentImages.findIndex(img => fixUrl(img) === fixUrl(src)); if (index !== -1) highlightThumbnail(index, skipScroll); }
+    if(thumbEl) { 
+        document.querySelectorAll('.thumb-box').forEach(t => t.classList.remove('active')); 
+        thumbEl.classList.add('active'); 
+    } 
+    else { 
+        const index = state.currentImages.findIndex(img => fixUrl(img) === fixUrl(src)); 
+        if (index !== -1) highlightThumbnail(index, skipScroll); 
+    }
 }
 
 function highlightThumbnail(index, skipScroll) { 
@@ -357,7 +384,6 @@ function addToCart() {
     updateBadge(); showToast(`✅ تمت إضافة ${itemsAddedCount} قطعة للسلة!`); 
     const cartBtn = document.querySelector('.cart-btn'); cartBtn.classList.add('shake'); setTimeout(() => cartBtn.classList.remove('shake'), 500); checkIfInCart();
 
-    // 🔥 تعديل: إرسال القيمة الإجمالية للمنتجات المضافة (وليس سعر القطعة الواحدة) 🔥
     const totalAddedValue = state.currentProduct.base_price * itemsAddedCount;
 
     if (itemsAddedCount > 0 && typeof fbq !== 'undefined') {
@@ -385,7 +411,75 @@ function openPolicy(type) {
 
 function updateCartQty(index, change) { state.cart[index].qty += change; if (state.cart[index].qty <= 0) state.cart.splice(index, 1); updateBadge(); openCheckout(); }
 function updateBadge() { const b = document.getElementById('cart-badge'); const totalQty = state.cart.reduce((s, i) => s + i.qty, 0); b.innerText = totalQty; b.style.display = totalQty > 0 ? 'flex' : 'none'; }
-function openCheckout() { if(!state.cart.length) { document.getElementById('cart-content-wrapper').innerHTML = `<div class="empty-cart-view"><span class="empty-icon">🛒</span><div class="empty-text">سلتك فارغة</div><button class="shop-now-btn" onclick="closeCheckout()">تسوّق الآن</button></div>`; document.getElementById('checkout-modal').classList.add('active'); return; } let total = state.cart.reduce((s, i) => s + (Number(i.base_price) * i.qty), 0); document.getElementById('cart-content-wrapper').innerHTML = `<div class="delivery-note">🚚 التوصيل خلال 24-48 ساعة</div><div id="cart-items" class="cart-list">${state.cart.map((i, idx) => `<div class="cart-item"><div class="cart-info"><span style="font-weight:bold;color:#555;">${i.name}</span><div class="cart-qty-ctrl"><button class="cart-mini-btn" onclick="updateCartQty(${idx}, -1)">-</button><span class="cart-mini-qty">${i.qty}</span><button class="cart-mini-btn" onclick="updateCartQty(${idx}, 1)">+</button></div></div><span style="font-weight:bold;color:#2B2D42;">${(i.base_price * i.qty).toFixed(2)}</span></div>`).join('')}</div><div id="total-box" class="total-display"><div style="margin-top:10px;padding-top:10px;border-top:2px dashed #ddd;">الإجمالي: <span style="font-size:1.3rem;">${(total+3).toFixed(2)} JOD</span></div></div><form onsubmit="submitOrder(event)"><input type="text" id="cust-name" placeholder="الاسم" required class="form-input"><input type="tel" id="cust-phone" placeholder="الهاتف" required class="form-input"><select id="cust-city" required class="form-input"><option value="" disabled selected>المحافظة...</option><option>عمان</option><option>إربد</option><option>الزرقاء</option><option>السلط</option><option>العقبة</option><option>مادبا</option><option>جرش</option><option>عجلون</option><option>الكرك</option><option>الطفيلة</option><option>معان</option><option>المفرق</option></select><textarea id="cust-address" placeholder="العنوان..." required class="form-input address-input"></textarea><button type="submit" id="submit-btn" class="order-submit">تأكيد الطلب 🚀</button></form>`; document.getElementById('checkout-modal').classList.add('active'); }
+
+// 🔥 تعديل: السلة التفصيلية (حساب المجموع مع التوصيل) + خانة الملاحظات 🔥
+function openCheckout() { 
+    if(!state.cart.length) { 
+        document.getElementById('cart-content-wrapper').innerHTML = `
+            <div class="empty-cart-view">
+                <span class="empty-icon">🛒</span>
+                <div class="empty-text">سلتك فارغة</div>
+                <button class="shop-now-btn" onclick="closeCheckout()">تسوّق الآن</button>
+            </div>`; 
+        document.getElementById('checkout-modal').classList.add('active'); 
+        return; 
+    } 
+
+    let subtotal = state.cart.reduce((s, i) => s + (Number(i.base_price) * i.qty), 0); 
+    let shipping = 3;
+    let total = subtotal + shipping;
+
+    document.getElementById('cart-content-wrapper').innerHTML = `
+        <div class="delivery-note">🚚 التوصيل خلال 24-48 ساعة</div>
+        <div id="cart-items" class="cart-list">
+            ${state.cart.map((i, idx) => `
+                <div class="cart-item">
+                    <div class="cart-info">
+                        <span style="font-weight:bold;color:#555;">${i.name}</span>
+                        <div class="cart-qty-ctrl">
+                            <button class="cart-mini-btn" onclick="updateCartQty(${idx}, -1)">-</button>
+                            <span class="cart-mini-qty">${i.qty}</span>
+                            <button class="cart-mini-btn" onclick="updateCartQty(${idx}, 1)">+</button>
+                        </div>
+                    </div>
+                    <span style="font-weight:bold;color:#2B2D42;">${(i.base_price * i.qty).toFixed(2)}</span>
+                </div>
+            `).join('')}
+        </div>
+        
+        <div id="total-box" class="total-display" style="background:#f9f9f9; padding:15px; border-radius:10px; margin-top:15px;">
+            <div style="display:flex; justify-content:space-between; margin-bottom:5px; color:#666;">
+                <span>مجموع المنتجات:</span>
+                <span>${subtotal.toFixed(2)} JOD</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; margin-bottom:10px; color:#666; border-bottom:1px dashed #ddd; padding-bottom:10px;">
+                <span>+ رسوم التوصيل:</span>
+                <span>${shipping.toFixed(2)} JOD</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:1.2rem; font-weight:bold; color:var(--primary);">
+                <span>المجموع الكلي:</span>
+                <span>${total.toFixed(2)} JOD</span>
+            </div>
+        </div>
+
+        <form onsubmit="submitOrder(event)">
+            <input type="text" id="cust-name" placeholder="الاسم" required class="form-input">
+            <input type="tel" id="cust-phone" placeholder="الهاتف" required class="form-input">
+            <select id="cust-city" required class="form-input">
+                <option value="" disabled selected>المحافظة...</option>
+                <option>عمان</option><option>إربد</option><option>الزرقاء</option><option>السلط</option>
+                <option>العقبة</option><option>مادبا</option><option>جرش</option><option>عجلون</option>
+                <option>الكرك</option><option>الطفيلة</option><option>معان</option><option>المفرق</option>
+            </select>
+            <textarea id="cust-address" placeholder="العنوان بالتفصيل..." required class="form-input address-input"></textarea>
+            
+            <textarea id="order-note" placeholder="ملاحظات إضافية (اختياري)..." class="form-input" style="height:70px; resize:none;"></textarea>
+
+            <button type="submit" id="submit-btn" class="order-submit">تأكيد الطلب (${total.toFixed(2)} JOD) 🚀</button>
+        </form>
+    `; 
+    document.getElementById('checkout-modal').classList.add('active'); 
+}
 
 function submitOrder(e) { 
     e.preventDefault(); 
@@ -393,18 +487,19 @@ function submitOrder(e) {
     btn.innerText = "جاري الإرسال..."; 
     btn.disabled = true; 
     
+    const subtotal = state.cart.reduce((s, i) => s + (Number(i.base_price) * i.qty), 0);
+    const grandTotal = subtotal + 3;
+    const note = document.getElementById('order-note').value;
+
     const data = { 
         name: document.getElementById('cust-name').value, 
         phone: document.getElementById('cust-phone').value, 
         city: document.getElementById('cust-city').value, 
         address: document.getElementById('cust-address').value, 
+        note: note,
         cart: state.cart, 
-        total: document.getElementById('total-box').innerText.replace('الإجمالي:', '').trim() 
+        total: grandTotal.toFixed(2) + " JOD" 
     }; 
-
-    // 🔥 تعديل: إضافة 3 دنانير توصيل لقيمة الشراء المرسلة لفيسبوك 🔥
-    const totalValue = state.cart.reduce((s, i) => s + (Number(i.base_price) * i.qty), 0);
-    const grandTotal = totalValue + 3; // إضافة التوصيل
 
     if (typeof fbq !== 'undefined') {
         fbq('track', 'Purchase', {
@@ -418,7 +513,9 @@ function submitOrder(e) {
     fetch(API_URL + "?action=order", { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).catch(console.error); 
     
     let items = state.cart.map(i => `- ${i.name} (x${i.qty})`).join('%0A'); 
-    window.open(`https://wa.me/962781591754?text=*طلب جديد 🛒*%0A%0A👤 ${data.name}%0A📱 ${data.phone}%0A📍 ${data.city}%0A🏠 ${data.address}%0A%0A📦 *الطلبات:*%0A${items}%0A%0A💰 *${data.total}*`, '_blank'); 
+    let waNote = note ? `%0A📝 *ملاحظات:* ${note}` : '';
+
+    window.open(`https://wa.me/962781591754?text=*طلب جديد 🛒*%0A%0A👤 ${data.name}%0A📱 ${data.phone}%0A📍 ${data.city}%0A🏠 ${data.address}${waNote}%0A%0A📦 *الطلبات:*%0A${items}%0A%0A💰 *المجموع شامل التوصيل: ${data.total}*`, '_blank'); 
     
     btn.innerText = "تأكيد الطلب 🚀"; 
     btn.disabled = false; 
@@ -427,7 +524,13 @@ function submitOrder(e) {
     closeCheckout(); 
 }
 
-function closeModal() { document.getElementById('product-modal').classList.remove('active'); clearInterval(slideInterval); }
+function closeModal() { 
+    document.getElementById('product-modal').classList.remove('active'); 
+    clearInterval(slideInterval); 
+    const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+    window.history.pushState({ path: cleanUrl }, '', cleanUrl);
+}
+
 function closeCheckout() { document.getElementById('checkout-modal').classList.remove('active'); }
 function closePolicy() { document.getElementById('policy-modal').classList.remove('active'); }
 function showPolicy(t,x) { document.getElementById('p-title').innerText=t; document.getElementById('p-text').innerText=x; document.getElementById('policy-modal').classList.add('active'); toggleSidebar(); }

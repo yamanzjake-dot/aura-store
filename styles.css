@@ -33,12 +33,14 @@ body {
 .reveal { opacity: 0; transform: translateY(30px); transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
 .reveal.active { opacity: 1; transform: translateY(0); }
 
-/* LOADER */
+/* LOADER & SPINNER */
 .loader-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; align-items: center; justify-content: center; }
 .loader-content { display: flex; flex-direction: column; align-items: center; gap: 10px; }
 .brand-box { font-family: 'Marhey', sans-serif; font-size: 3.5rem; font-weight: 700; opacity: 0; transform: scale(0.8); animation: logoFocus 1.2s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 .brand-box .brand-main { color: var(--primary); }
 .brand-box .brand-sub { color: var(--accent); }
+.spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .slogan-mask { overflow: hidden; padding: 5px; }
 .loader-slogan { font-family: 'Tajawal', sans-serif; font-size: 1rem; color: var(--text); font-weight: bold; margin: 0; transform: translateY(100%); opacity: 0; animation: textSlideUp 1s cubic-bezier(0.25, 1, 0.5, 1) 0.5s forwards; }
 @keyframes logoFocus { 0% { opacity: 0; transform: scale(0.8) translateY(20px); filter: blur(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); } }
@@ -163,24 +165,19 @@ body {
 .copy { font-weight: bold; color: var(--text); margin-bottom: 5px; }
 .disclaimer { font-size: 0.7rem; color: #999; font-family: sans-serif; }
 
-/* 🔥 الأزرار العائمة (تصميم التطبيقات) 🔥 */
 .floating-contact { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 4000; }
-.float-btn {
-    width: 52px; height: 52px;
-    border-radius: 14px; /* شكل التطبيق */
-    color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
-    transition: transform 0.2s;
-    border: 2px solid rgba(255,255,255,0.2); /* إطار خفيف */
-}
+.float-btn { width: 52px; height: 52px; border-radius: 14px; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.25); transition: transform 0.2s; border: 2px solid rgba(255,255,255,0.2); }
 .float-btn:hover { transform: scale(1.1); }
-/* واتساب (لون رسمي) */
 .float-btn.whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); }
-/* فيسبوك (لون رسمي) */
 .float-btn.facebook { background: linear-gradient(135deg, #1877F2, #0C5DC7); }
-/* إنستغرام (تدرج رسمي) */
 .float-btn.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+
+/* 🔥 أيقونات الفوتر (فيسبوك وإنستغرام فقط) 🔥 */
+.social-links-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
+.social-icon { padding: 10px 20px; border-radius: 50px; color: #fff; font-weight: bold; text-decoration: none; font-size: 0.9rem; transition: transform 0.2s; }
+.social-icon:active { transform: scale(0.95); }
+.social-icon.fb { background: #1877F2; }
+.social-icon.insta { background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); }
 
 .zoom-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 5000; display: none; align-items: center; justify-content: center; }
 .zoom-overlay.active { display: flex; }
