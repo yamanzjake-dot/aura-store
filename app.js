@@ -3,7 +3,7 @@ const API_URL = "https://script.google.com/macros/s/AKfycbwhp-xUXRfgU0shX-ub04QO
 
 let state = { 
     products: [], 
-    banners: [], // مصفوفة خاصة للبانرات
+    banners: [], 
     cart: [], 
     currentProduct: null, 
     studioImages: [], 
@@ -15,37 +15,77 @@ let state = {
     mainQty: 1 
 };
 let slideInterval; 
-let heroInterval; // للبانرات العلوية
+let heroInterval; 
 let fuse; 
 
-// النصوص وسياسات الموقع
+// 🔥 النصوص القانونية الكاملة 🔥
 const sitePolicies = {
-    privacy: { title: "🔒 سياسة الخصوصية", content: `<div style="text-align: right; line-height: 1.8;">نحن في Aura & Luxe نلتزم بحماية خصوصيتك. نقوم بجمع اسمك، رقم هاتفك، وعنوانك فقط لغايات توصيل الطلب.</div>` },
-    shipping: { title: "📦 الشحن والتوصيل", content: `<div style="text-align: right; line-height: 1.8;">نقوم بالتوصيل لجميع محافظات المملكة.<br>عمان والزرقاء: 24-48 ساعة.<br>باقي المحافظات: 48-72 ساعة.<br>رسوم التوصيل: 3 دنانير تضاف عند إتمام الطلب.</div>` },
-    refund: { title: "🔄 الاستبدال والاسترجاع", content: `<div style="text-align: right; line-height: 1.8;">يحق للعميل فتح الطرد ومعاينة المنتج قبل الدفع. في حال وجود عيب مصنعي، يتم الاستبدال مجاناً خلال 3 أيام.</div>` },
-    contact: { title: "📞 معلومات التواصل", content: `<div style="text-align: right; line-height: 1.8;"><strong>رقم المدير / خدمة العملاء:</strong><br><a href="tel:962781808198" style="color:var(--primary);">0781808198</a><br><br><strong>البريد الإلكتروني:</strong><br><a href="mailto:babyandtoddlerss@gmail.com" style="color:var(--primary);">babyandtoddlerss@gmail.com</a></div>` },
-    terms: { title: "⚖️ شروط الاستخدام", content: `<div style="text-align: right; line-height: 1.8;">الأسعار نهائية وتشمل الضريبة. يحق للمتجر إلغاء الطلب في حال عدم الرد على الهاتف.<br><br><strong>Disclaimer:</strong> This site is not a part of the Facebook website or Facebook Inc.</div>` }
+    privacy: { 
+        title: "🔒 سياسة الخصوصية", 
+        content: `
+        <div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;">
+            <p><strong>1. مقدمة:</strong><br>نحن في <strong>Aura & Luxe</strong> نولي اهتماماً كبيراً لخصوصية زوارنا وعملائنا. توضح هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية.</p>
+            <p><strong>2. المعلومات التي نجمعها:</strong><br>عند إتمام الطلب، نقوم بجمع المعلومات التالية فقط لغايات التوصيل:<br>- الاسم الكامل.<br>- رقم الهاتف.<br>- العنوان التفصيلي (المدينة، المنطقة، المعلم القريب).</p>
+            <p><strong>3. استخدام المعلومات:</strong><br>نستخدم بياناتك حصراً لـ:<br>- معالجة طلبك وتوصيله إليك.<br>- التواصل معك في حال وجود تحديثات حول الطلب.<br>- تحسين تجربة المستخدم في موقعنا.</p>
+            <p><strong>4. مشاركة البيانات:</strong><br>نحن لا نقوم ببيع أو تأجير أو مشاركة بياناتك مع أي طرف ثالث لأغراض تسويقية. تتم مشاركة العنوان ورقم الهاتف فقط مع <strong>شركة الشحن</strong> المعتمدة لدينا لضمان وصول الطلب.</p>
+            <p><strong>5. ملفات تعريف الارتباط (Cookies):</strong><br>يستخدم موقعنا ملفات تعريف الارتباط (مثل Facebook Pixel) لتحسين تجربتك الإعلانية وتحليل أداء الموقع، دون الوصول إلى بياناتك الشخصية الحساسة.</p>
+        </div>` 
+    },
+    shipping: { 
+        title: "📦 سياسة الشحن والتوصيل", 
+        content: `
+        <div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;">
+            <p><strong>1. مناطق التوصيل:</strong><br>نقوم بالتوصيل إلى جميع محافظات المملكة الأردنية الهاشمية (شمال، وسط، جنوب).</p>
+            <p><strong>2. مدة التوصيل:</strong><br>- <strong>عمان والزرقاء:</strong> خلال 24 - 48 ساعة من تأكيد الطلب.<br>- <strong>باقي المحافظات:</strong> خلال 48 - 72 ساعة.</p>
+            <p><strong>3. رسوم التوصيل:</strong><br>رسوم التوصيل ثابتة (3 دنانير) تضاف تلقائياً إلى فاتورتك النهائية عند إتمام الطلب.</p>
+            <p><strong>4. عملية التسليم:</strong><br>سيقوم مندوب التوصيل بالاتصال بك قبل الوصول. في حال عدم الرد لأكثر من مرة، قد يتم إلغاء الطلب أو تأجيله لليوم التالي.</p>
+        </div>` 
+    },
+    refund: { 
+        title: "🔄 سياسة الاستبدال والاسترجاع", 
+        content: `
+        <div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;">
+            <p><strong>1. حق المعاينة (القاعدة الذهبية):</strong><br>يحق للعميل فتح الطرد ومعاينة المنتج بالكامل أمام المندوب <strong>قبل الدفع</strong>. إذا لم يعجبك المنتج أو كان غير مطابق، يمكنك رفض استلامه ودفع رسوم التوصيل فقط للمندوب.</p>
+            <p><strong>2. وجود عيب مصنعي:</strong><br>في حال اكتشاف عيب مصنعي بعد الاستلام، يحق لك طلب استبدال المنتج مجاناً خلال <strong>3 أيام</strong> من تاريخ الاستلام، بشرط أن يكون المنتج بحالته الأصلية ومع كامل ملحقاته.</p>
+            <p><strong>3. الاستبدال برغبة العميل:</strong><br>إذا رغبت في استبدال المنتج لسبب غير متعلق بعيب مصنعي (تغيير رأي)، يتم ذلك خلال 3 أيام مع تحمل العميل رسوم التوصيل الإضافية.</p>
+        </div>` 
+    },
+    contact: { 
+        title: "📞 معلومات التواصل والدعم", 
+        content: `
+        <div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;">
+            <p>فريق خدمة العملاء جاهز لمساعدتكم على مدار الساعة.</p>
+            <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
+            <p><strong>📱 رقم الهاتف / واتساب:</strong><br><a href="tel:962781591754" style="color:var(--primary); font-weight:bold; font-size:1.1rem;">0781591754</a></p>
+            <p><strong>📧 البريد الإلكتروني:</strong><br><a href="mailto:babyandtoddlerss@gmail.com" style="color:var(--primary); font-weight:bold;">babyandtoddlerss@gmail.com</a></p>
+            <p><strong>📍 العنوان:</strong><br>الأردن - متجر إلكتروني (Online Store)</p>
+        </div>` 
+    },
+    terms: { 
+        title: "⚖️ شروط الاستخدام وإخلاء المسؤولية", 
+        content: `
+        <div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;">
+            <p><strong>1. الأسعار والدفع:</strong><br>جميع الأسعار المعروضة بالدينار الأردني (JOD) وهي نهائية. الدفع يتم نقداً عند الاستلام (Cash on Delivery).</p>
+            <p><strong>2. المصداقية في الطلب:</strong><br>تأكيدك للطلب عبر الموقع يعتبر التزاماً بالشراء. الطلبات الوهمية تسبب ضرراً للمتجر وقد تعرض صاحبها للمساءلة.</p>
+            <p><strong>3. إخلاء مسؤولية فيسبوك (Facebook Disclaimer):</strong><br>
+            <span style="font-size:0.8rem; color:#666;">This site is not a part of the Facebook website or Facebook Inc. Additionally, This site is NOT endorsed by Facebook in any way. FACEBOOK is a trademark of FACEBOOK, Inc.</span></p>
+            <p>نحن نستخدم منصة فيسبوك للإعلان فقط، ولا نمثل شركة فيسبوك بشكل رسمي.</p>
+        </div>` 
+    }
 };
 
 window.onload = async () => {
     try {
         const res = await fetch(`${API_URL}?action=products`);
         const rawData = await res.json();
-
-        // 🔥 فرز البيانات: البانرات لحال والمنتجات لحال 🔥
         state.banners = rawData.filter(item => item.category && item.category.trim().toLowerCase() === 'banner');
         state.products = rawData.filter(item => !item.category || item.category.trim().toLowerCase() !== 'banner');
-
         initSearchEngine();
         initApp();
-        
-        // إخفاء اللودر
         document.getElementById('loader').style.display = 'none';
-        
         setupScrollObserver();
     } catch(e) { 
         console.error("Error loading data:", e);
-        // في حال الخطأ نخفي اللودر عشان الموقع ما يعلق
         document.getElementById('loader').style.display = 'none';
     }
 };
@@ -105,36 +145,26 @@ function initApp() {
     renderCategories(); 
     renderSpecialSections(); 
     renderGrid('all'); 
-    initHeroSlider(); // تشغيل السلايدر الديناميكي
+    initHeroSlider(); 
 }
 
-// 🔥 تشغيل السلايدر بناءً على البانرات من الشيت 🔥
 function initHeroSlider() { 
     const sliderContainer = document.getElementById('hero-slider');
-    
-    // إذا وجدنا بانرات في الشيت
     if (state.banners.length > 0) {
         sliderContainer.innerHTML = state.banners.map((b, index) => {
-            // إضافة خاصية الضغط على البانر إذا كان في الوصف رابط
             const linkAttr = (b.description && b.description.startsWith('http')) 
                 ? `onclick="window.open('${b.description}', '_blank')"` 
                 : '';
-            
-            // ستايل المؤشر
             const cursorStyle = (b.description && b.description.startsWith('http')) ? 'pointer' : 'default';
-
             return `<div class="hero-slide ${index === 0 ? 'active' : ''}" 
                  style="background-image: url('${fixUrl(b.main_image)}'); cursor: ${cursorStyle}"
                  ${linkAttr}>
             </div>`;
         }).join('');
-        
-        // إذا كان هناك أكثر من بانر، شغل التقليب التلقائي
         if(state.banners.length > 1) { 
             startHeroAutoSlide();
         }
     } 
-    // إذا لم توجد بانرات، الكود سيبقي على الـ HTML الافتراضي (إذا موجود) أو يتركه فارغاً
 }
 
 function startHeroAutoSlide() {
@@ -145,7 +175,7 @@ function startHeroAutoSlide() {
         slides[i].classList.remove('active'); 
         i = (i + 1) % slides.length; 
         slides[i].classList.add('active'); 
-    }, 4000); // كل 4 ثواني
+    }, 4000); 
 }
 
 function renderCategories() { const cats = ['الكل', ...new Set(state.products.map(p => p.category).filter(c => c))]; document.getElementById('categories-nav').innerHTML = cats.map(c => `<button class="cat-btn ${c==='الكل'?'active':''}" onclick="filterByCat(this, '${c}')">${c}</button>`).join(''); }
@@ -158,12 +188,10 @@ function renderSpecialSections() {
 }
 function renderGrid(cat) { const filtered = (cat === 'all' || cat === 'الكل') ? state.products : state.products.filter(p => p.category === cat); document.getElementById('products-grid').innerHTML = filtered.map(p => productCard(p)).join(''); }
 
-// كرت المنتج (مع بادج الصور الواقعية)
 function productCard(p) { let badgeHtml = ""; if (p.real_images && p.real_images.trim().length > 5) { badgeHtml = `<div class="real-badge">📷 صور واقعية</div>`; } return `<div class="card reveal" onclick="openProduct(${p.id})">${badgeHtml}<img src="${fixUrl(p.main_image)}" class="card-img" loading="lazy"><div class="card-body"><div class="card-title">${p.name}</div><div class="price-container">${getPriceHtml(p)}</div></div></div>`; }
 function miniCard(p, isShimmer) { let badgeHtml = ""; if (p.real_images && p.real_images.trim().length > 5) { badgeHtml = `<div class="real-badge">📷</div>`; } return `<div class="card reveal ${isShimmer ? 'shimmer-effect' : ''}" style="min-width:145px;" onclick="openProduct(${p.id})">${badgeHtml}<img src="${fixUrl(p.main_image)}" style="width:100%; height:110px; object-fit:contain; padding:5px;"><div style="padding:8px; text-align:center;"><div style="font-size:0.8rem; font-weight:bold; margin-bottom:5px; height:35px; overflow:hidden;">${p.name}</div><div class="price-container">${getPriceHtml(p)}</div></div></div>`; }
 function getPriceHtml(p) { if(p.old_price && Number(p.old_price) > Number(p.base_price)) { return `<div class="old-price">${p.old_price} JOD</div><div class="price-red">${p.base_price} JOD</div>`; } return `<div class="price-normal">${p.base_price} JOD</div>`; }
 
-// فتح المنتج
 function openProduct(id) {
     const p = state.products.find(x => x.id == id);
     state.currentProduct = p;
@@ -171,7 +199,6 @@ function openProduct(id) {
     state.mainQty = 1;
     state.viewMode = 'studio'; 
 
-    // 🔥 تتبع فتح المنتج (ViewContent) 🔥
     if (typeof fbq !== 'undefined') {
         fbq('track', 'ViewContent', { 
             content_name: p.name, 
@@ -202,7 +229,6 @@ function openProduct(id) {
 
     state.currentImages = state.studioImages;
     let toggleHtml = '';
-    // زر التبديل الجديد
     if (state.realImages.length > 0) {
         toggleHtml = `<div class="reality-switch-container"><div class="reality-toggle-wrapper"><button class="rt-btn active" onclick="switchViewMode('studio', this)">💎 صور العرض</button><button class="rt-btn" onclick="switchViewMode('real', this)">📸 صور واقعية وفيدباك</button></div></div>`;
     }
@@ -212,6 +238,7 @@ function openProduct(id) {
     if (state.currentImages.length > 1) startProductAutoSlide();
 }
 
+// 🔥 تم تحديث هذه الدالة لتضع زر الشراء في الأسفل (Sticky) 🔥
 function renderProductModal(p, toggleHtml) {
     const thumbnailsHtml = state.currentImages.map((img, i) => `<div class="thumb-box ${i === 0 ? 'active' : ''}" onclick="manualSwitch('${img}', this)"><img src="${fixUrl(img)}"></div>`).join('');
     let controlsHtml = '';
@@ -234,6 +261,8 @@ function renderProductModal(p, toggleHtml) {
     }
     let priceModalHtml = `<div class="price-normal" style="font-size:1.4rem; margin:10px 0;">${p.base_price} JOD</div>`;
     if(p.old_price && Number(p.old_price) > Number(p.base_price)) { priceModalHtml = `<div style="display:flex; align-items:center; justify-content:center; gap:10px; margin:10px 0;"><span style="text-decoration:line-through; color:#999; font-size:1.1rem;">${p.old_price} JOD</span><span style="font-size:1.5rem; font-weight:900; color:#D32F2F;">${p.base_price} JOD</span></div>`; }
+    
+    // فصل المحتوى عن زر الشراء
     document.getElementById('modal-sheet-content').innerHTML = `
         <div class="modal-header-sticky"><h3 style="font-family:'Marhey'; font-size:1rem; margin:0;">تفاصيل المنتج</h3><button class="close-sheet-btn" onclick="closeModal()">✕</button></div>
         <div class="modal-scroll-content">
@@ -242,7 +271,9 @@ function renderProductModal(p, toggleHtml) {
             ${priceModalHtml}
             <div style="background:#f9f9f9; padding:15px; border-radius:10px; margin-bottom:15px; text-align:right;"><p style="color:#555; line-height:1.7; font-size:0.9rem;">${p.description || 'لا يوجد وصف متاح.'}</p></div>
             <h3 style="font-size:1rem; margin-bottom:10px;">اختر الكمية والموديل:</h3>${controlsHtml}
-            <div class="action-area-wrapper" id="action-buttons"><button class="order-submit" onclick="addToCart()">إضافة للسلة 🛒</button></div>
+        </div>
+        <div class="modal-footer-sticky" id="action-buttons">
+            <button class="order-submit" onclick="addToCart()">إضافة للسلة 🛒</button>
         </div>
     `;
 }
@@ -289,7 +320,6 @@ function highlightThumbnail(index, skipScroll) {
 
 function openZoomToSpecificImage(url) { if(!url) return; const fixedUrl = fixUrl(url); const index = state.currentImages.findIndex(img => fixUrl(img) === fixedUrl); state.zoomIndex = (index !== -1) ? index : 0; updateZoomView(); document.getElementById('zoom-modal').classList.add('active'); }
 
-// 🔥 تمرير أمر منع القفز للزر 🔥
 function updateVariantQty(name, change, imgUrl) {
     if(change > 0 && imgUrl) { manualSwitch(imgUrl, null, true); }
     if (!state.variantTracker[name]) state.variantTracker[name] = 0;
@@ -330,7 +360,6 @@ function addToCart() {
     updateBadge(); showToast(`✅ تمت إضافة ${itemsAddedCount} قطعة للسلة!`); 
     const cartBtn = document.querySelector('.cart-btn'); cartBtn.classList.add('shake'); setTimeout(() => cartBtn.classList.remove('shake'), 500); checkIfInCart();
 
-    // 🔥 تتبع الإضافة للسلة (AddToCart) 🔥
     if (itemsAddedCount > 0 && typeof fbq !== 'undefined') {
         fbq('track', 'AddToCart', {
             content_name: state.currentProduct.name,
@@ -342,6 +371,7 @@ function addToCart() {
     }
 }
 
+function checkIfInCart() { const container = document.getElementById('action-buttons'); let html = `<button class="order-submit" onclick="addToCart()">إضافة للسلة 🛒</button>`; if (state.cart.length > 0) html += `<button class="go-cart-btn" onclick="openCheckout()">الذهاب للسلة الآن ⬅️</button>`; container.innerHTML = html; }
 function openPolicy(type) {
     const policy = sitePolicies[type];
     if (policy) {
@@ -353,7 +383,6 @@ function openPolicy(type) {
     }
 }
 
-function checkIfInCart() { const container = document.getElementById('action-buttons'); let html = `<button class="order-submit" onclick="addToCart()">إضافة للسلة 🛒</button>`; if (state.cart.length > 0) html += `<button class="go-cart-btn" onclick="openCheckout()">الذهاب للسلة الآن ⬅️</button>`; container.innerHTML = html; }
 function updateCartQty(index, change) { state.cart[index].qty += change; if (state.cart[index].qty <= 0) state.cart.splice(index, 1); updateBadge(); openCheckout(); }
 function updateBadge() { const b = document.getElementById('cart-badge'); const totalQty = state.cart.reduce((s, i) => s + i.qty, 0); b.innerText = totalQty; b.style.display = totalQty > 0 ? 'flex' : 'none'; }
 function openCheckout() { if(!state.cart.length) { document.getElementById('cart-content-wrapper').innerHTML = `<div class="empty-cart-view"><span class="empty-icon">🛒</span><div class="empty-text">سلتك فارغة</div><button class="shop-now-btn" onclick="closeCheckout()">تسوّق الآن</button></div>`; document.getElementById('checkout-modal').classList.add('active'); return; } let total = state.cart.reduce((s, i) => s + (Number(i.base_price) * i.qty), 0); document.getElementById('cart-content-wrapper').innerHTML = `<div class="delivery-note">🚚 التوصيل خلال 24-48 ساعة</div><div id="cart-items" class="cart-list">${state.cart.map((i, idx) => `<div class="cart-item"><div class="cart-info"><span style="font-weight:bold;color:#555;">${i.name}</span><div class="cart-qty-ctrl"><button class="cart-mini-btn" onclick="updateCartQty(${idx}, -1)">-</button><span class="cart-mini-qty">${i.qty}</span><button class="cart-mini-btn" onclick="updateCartQty(${idx}, 1)">+</button></div></div><span style="font-weight:bold;color:#2B2D42;">${(i.base_price * i.qty).toFixed(2)}</span></div>`).join('')}</div><div id="total-box" class="total-display"><div style="margin-top:10px;padding-top:10px;border-top:2px dashed #ddd;">الإجمالي: <span style="font-size:1.3rem;">${(total+3).toFixed(2)} JOD</span></div></div><form onsubmit="submitOrder(event)"><input type="text" id="cust-name" placeholder="الاسم" required class="form-input"><input type="tel" id="cust-phone" placeholder="الهاتف" required class="form-input"><select id="cust-city" required class="form-input"><option value="" disabled selected>المحافظة...</option><option>عمان</option><option>إربد</option><option>الزرقاء</option><option>السلط</option><option>العقبة</option><option>مادبا</option><option>جرش</option><option>عجلون</option><option>الكرك</option><option>الطفيلة</option><option>معان</option><option>المفرق</option></select><textarea id="cust-address" placeholder="العنوان..." required class="form-input address-input"></textarea><button type="submit" id="submit-btn" class="order-submit">تأكيد الطلب 🚀</button></form>`; document.getElementById('checkout-modal').classList.add('active'); }
@@ -373,8 +402,6 @@ function submitOrder(e) {
         total: document.getElementById('total-box').innerText.replace('الإجمالي:', '').trim() 
     }; 
 
-    // 🔥 تتبع الشراء (Purchase) 🔥
-    // نحسب القيمة الإجمالية
     const totalValue = state.cart.reduce((s, i) => s + (Number(i.base_price) * i.qty), 0);
     
     if (typeof fbq !== 'undefined') {
