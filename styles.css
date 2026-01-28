@@ -24,6 +24,7 @@ body {
     padding-bottom: calc(20px + var(--safe-bottom));
 }
 
+/* تحسينات الأداء والأنيميشن */
 @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
 @keyframes btnBounce { 0% { transform: scale(1); } 40% { transform: scale(0.9); } 70% { transform: scale(1.05); } 100% { transform: scale(1); } }
@@ -42,7 +43,9 @@ body {
 .spinner { width: 40px; height: 40px; border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 .slogan-mask { overflow: hidden; padding: 5px; }
-.loader-slogan { font-family: 'Tajawal', sans-serif; font-size: 1rem; color: var(--text); font-weight: bold; margin: 0; transform: translateY(100%); opacity: 0; animation: textSlideUp 1s cubic-bezier(0.25, 1, 0.5, 1) 0.5s forwards; }
+/* 🔥 تعديل الخط ليتناسب مع اللوغو 🔥 */
+.loader-slogan { font-family: 'Marhey', sans-serif; font-size: 1.1rem; color: var(--text); margin: 0; transform: translateY(100%); opacity: 0; animation: textSlideUp 1s cubic-bezier(0.25, 1, 0.5, 1) 0.5s forwards; }
+
 @keyframes logoFocus { 0% { opacity: 0; transform: scale(0.8) translateY(20px); filter: blur(10px); } 100% { opacity: 1; transform: scale(1) translateY(0); filter: blur(0px); } }
 @keyframes textSlideUp { 0% { opacity: 0; transform: translateY(120%); } 100% { opacity: 1; transform: translateY(0); } }
 
@@ -103,7 +106,8 @@ body {
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 5000; display: none; align-items: flex-end; backdrop-filter: blur(3px); transition: opacity 0.3s; opacity: 0; pointer-events: none; }
 .modal-overlay.active { opacity: 1; pointer-events: auto; display: flex; }
-.modal-sheet { background: #fff; width: 100%; border-radius: 25px 25px 0 0; max-height: 90dvh; display: flex; flex-direction: column; position: relative; overflow: hidden; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+/* تعديل لتغطية كامل الشاشة كصفحة مستقلة */
+.modal-sheet { background: #fff; width: 100%; height: 100%; border-radius: 0; max-height: 100%; display: flex; flex-direction: column; position: relative; overflow: hidden; transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .modal-overlay.active .modal-sheet { transform: translateY(0); }
 .modal-header-sticky { position: sticky; top: 0; z-index: 10; background: #fff; padding: 15px 20px; border-bottom: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; }
 .close-sheet-btn { background: #f5f5f5; border: none; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; color: #333; z-index: 20; }
@@ -112,7 +116,7 @@ body {
 .modal-footer-sticky { position: sticky; bottom: 0; z-index: 20; background: #fff; padding: 15px 20px; border-top: 1px solid #eee; padding-bottom: calc(15px + var(--safe-bottom)); box-shadow: 0 -4px 15px rgba(0,0,0,0.05); flex-shrink: 0; }
 
 .gallery-wrapper { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.main-img-container { width: 100%; height: 300px; background: #fff; border-radius: 12px; border: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; transition: opacity 0.3s; }
+.main-img-container { width: 100%; height: 350px; background: #fff; border-radius: 12px; border: 1px solid #f0f0f0; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; transition: opacity 0.3s; }
 .main-img-view { width: 100%; height: 100%; object-fit: contain; transition: opacity 0.3s; }
 .preview-btn { position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: none; padding: 8px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
 .thumbnails-strip { display: flex; gap: 8px; overflow-x: auto; padding: 5px 2px; scrollbar-width: none; width: 100%; min-height: 80px; flex-wrap: nowrap; align-items: center; scroll-snap-type: x mandatory; }
@@ -124,8 +128,9 @@ body {
 .variant-row { display: flex; align-items: center; justify-content: space-between; background: #fff; border: 1px solid #eee; border-radius: 12px; padding: 8px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); transition: 0.2s; }
 .variant-row:hover { border-color: var(--primary); }
 .variant-info { display: flex; align-items: center; gap: 10px; flex-grow: 1; overflow: hidden; cursor: pointer; }
-.variant-img { width: 45px; height: 45px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; flex-shrink: 0; }
-.variant-name { font-weight: bold; font-size: 0.9rem; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* 🔥 تكبير صور الموديلات 🔥 */
+.variant-img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; border: 1px solid #eee; flex-shrink: 0; }
+.variant-name { font-weight: bold; font-size: 1rem; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .variant-controls { display: flex; align-items: center; gap: 12px; background: #f8f9fa; border-radius: 8px; padding: 4px 8px; }
 
 .v-btn, .mq-btn, .cart-mini-btn { width: 44px; height: 44px; border: none; background: #fff; border-radius: 10px; font-weight: bold; color: var(--primary); cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; transition: transform 0.1s; }
@@ -165,19 +170,19 @@ body {
 .copy { font-weight: bold; color: var(--text); margin-bottom: 5px; }
 .disclaimer { font-size: 0.7rem; color: #999; font-family: sans-serif; }
 
-.floating-contact { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 4000; }
+/* 🔥 نقل الأيقونات لليسار 🔥 */
+.floating-contact { position: fixed; bottom: 20px; left: 20px; display: flex; flex-direction: column; gap: 12px; z-index: 4000; }
 .float-btn { width: 52px; height: 52px; border-radius: 14px; color: #fff; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(0,0,0,0.25); transition: transform 0.2s; border: 2px solid rgba(255,255,255,0.2); }
 .float-btn:hover { transform: scale(1.1); }
 .float-btn.whatsapp { background: linear-gradient(135deg, #25D366, #128C7E); }
 .float-btn.facebook { background: linear-gradient(135deg, #1877F2, #0C5DC7); }
 .float-btn.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
 
-/* 🔥 أيقونات الفوتر (فيسبوك وإنستغرام فقط) 🔥 */
 .social-links-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; }
 .social-icon { padding: 10px 20px; border-radius: 50px; color: #fff; font-weight: bold; text-decoration: none; font-size: 0.9rem; transition: transform 0.2s; }
 .social-icon:active { transform: scale(0.95); }
 .social-icon.fb { background: #1877F2; }
-.social-icon.insta { background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); }
+.social-icon.insta { background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#bc1888 100%); }
 
 .zoom-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 5000; display: none; align-items: center; justify-content: center; }
 .zoom-overlay.active { display: flex; }

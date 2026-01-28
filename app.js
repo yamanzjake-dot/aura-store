@@ -1,5 +1,5 @@
-// ⚠️ رابط السكربت الخاص بك
-const API_URL = "https://script.google.com/macros/s/AKfycbwhp-xUXRfgU0shX-ub04QOecukLzcrGEo-B9RWe4FL0w48MlU4_-cU9byuDBBMXnEGiw/exec";
+// ⚠️ رابط السكربت الخاص بك (تأكد أن الصلاحية Anyone)
+const API_URL = "https://script.google.com/macros/s/AKfycbzf-O6b5r3H2EAlKsqc1aGZPdnaq4D-1ZHT9TY96XUFvShXbXAQjYeKzZ_D_P3dDmeBtg/exec";
 
 let state = { 
     products: [], 
@@ -18,7 +18,7 @@ let slideInterval;
 let heroInterval; 
 let fuse; 
 
-// 🔥 النصوص القانونية الأصلية (كما وصلتنا منك بالحرف) 🔥
+// 🔥 النصوص القانونية الأصلية 🔥
 const sitePolicies = {
     privacy: { 
         title: "🔒 سياسة الخصوصية", 
@@ -81,13 +81,13 @@ window.onload = async () => {
         state.banners = rawData.filter(item => item.category && item.category.trim().toLowerCase() === 'banner');
         state.products = rawData.filter(item => !item.category || item.category.trim().toLowerCase() !== 'banner');
         
-        initSearchEngine();
+        // تحسين الأداء: تهيئة محرك البحث بدون تعطيل الواجهة
+        setTimeout(() => initSearchEngine(), 100);
         initApp();
         
         document.getElementById('loader').style.display = 'none';
         setupScrollObserver();
 
-        // 🔥 تشغيل الرابط المباشر للمنتج 🔥
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
         if (productId) {
@@ -207,7 +207,6 @@ function openProduct(id) {
     const p = state.products.find(x => x.id == id);
     if (!p) return;
 
-    // تغيير الرابط
     const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?id=' + id;
     window.history.pushState({ path: newUrl }, '', newUrl);
 
@@ -278,7 +277,6 @@ function renderProductModal(p, toggleHtml) {
     let priceModalHtml = `<div class="price-normal" style="font-size:1.4rem; margin:10px 0;">${p.base_price} JOD</div>`;
     if(p.old_price && Number(p.old_price) > Number(p.base_price)) { priceModalHtml = `<div style="display:flex; align-items:center; justify-content:center; gap:10px; margin:10px 0;"><span style="text-decoration:line-through; color:#999; font-size:1.1rem;">${p.old_price} JOD</span><span style="font-size:1.5rem; font-weight:900; color:#D32F2F;">${p.base_price} JOD</span></div>`; }
     
-    // 🔥 تكبير خط الوصف هنا 🔥
     document.getElementById('modal-sheet-content').innerHTML = `
         <div class="modal-header-sticky"><h3 style="font-family:'Marhey'; font-size:1rem; margin:0;">تفاصيل المنتج</h3><button class="close-sheet-btn" onclick="closeModal()">✕</button></div>
         <div class="modal-scroll-content">
@@ -331,6 +329,7 @@ function manualSwitch(src, thumbEl, skipScroll) {
     }
 }
 
+// 🔥 تحسين: منع القفز العشوائي عند تغيير الصور 🔥
 function highlightThumbnail(index, skipScroll) { 
     const thumbs = document.querySelectorAll('.thumb-box'); 
     thumbs.forEach(t => t.classList.remove('active')); 
@@ -345,6 +344,7 @@ function highlightThumbnail(index, skipScroll) {
 function openZoomToSpecificImage(url) { if(!url) return; const fixedUrl = fixUrl(url); const index = state.currentImages.findIndex(img => fixUrl(img) === fixedUrl); state.zoomIndex = (index !== -1) ? index : 0; updateZoomView(); document.getElementById('zoom-modal').classList.add('active'); }
 
 function updateVariantQty(name, change, imgUrl) {
+    // 🔥 تحسين: عند تغيير الكمية، لا نجبر الصفحة على القفز (skipScroll = true) 🔥
     if(change > 0 && imgUrl) { manualSwitch(imgUrl, null, true); }
     if (!state.variantTracker[name]) state.variantTracker[name] = 0;
     state.variantTracker[name] += change;
@@ -412,7 +412,6 @@ function openPolicy(type) {
 function updateCartQty(index, change) { state.cart[index].qty += change; if (state.cart[index].qty <= 0) state.cart.splice(index, 1); updateBadge(); openCheckout(); }
 function updateBadge() { const b = document.getElementById('cart-badge'); const totalQty = state.cart.reduce((s, i) => s + i.qty, 0); b.innerText = totalQty; b.style.display = totalQty > 0 ? 'flex' : 'none'; }
 
-// 🔥 تعديل: السلة التفصيلية (حساب المجموع مع التوصيل) + خانة الملاحظات 🔥
 function openCheckout() { 
     if(!state.cart.length) { 
         document.getElementById('cart-content-wrapper').innerHTML = `
@@ -481,12 +480,16 @@ function openCheckout() {
     document.getElementById('checkout-modal').classList.add('active'); 
 }
 
+// 🔥 تعديل جوهري: إرسال للشيت + عرض رسالة نجاح في الموقع فقط 🔥
 function submitOrder(e) { 
     e.preventDefault(); 
     const btn = document.getElementById('submit-btn'); 
-    btn.innerText = "جاري الإرسال..."; 
-    btn.disabled = true; 
+    const originalText = btn.innerText;
     
+    btn.innerText = "جاري حفظ الطلب... ⏳"; 
+    btn.disabled = true; 
+    btn.style.background = "#ccc";
+
     const subtotal = state.cart.reduce((s, i) => s + (Number(i.base_price) * i.qty), 0);
     const grandTotal = subtotal + 3;
     const note = document.getElementById('order-note').value;
@@ -501,6 +504,7 @@ function submitOrder(e) {
         total: grandTotal.toFixed(2) + " JOD" 
     }; 
 
+    // إرسال البيكسل
     if (typeof fbq !== 'undefined') {
         fbq('track', 'Purchase', {
             value: grandTotal, 
@@ -510,18 +514,44 @@ function submitOrder(e) {
         });
     }
 
-    fetch(API_URL + "?action=order", { method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) }).catch(console.error); 
-    
-    let items = state.cart.map(i => `- ${i.name} (x${i.qty})`).join('%0A'); 
-    let waNote = note ? `%0A📝 *ملاحظات:* ${note}` : '';
+    // الإرسال إلى الشيت
+    fetch(API_URL + "?action=order", { 
+        method: "POST", 
+        mode: "no-cors", 
+        headers: { "Content-Type": "application/json" }, 
+        body: JSON.stringify(data) 
+    })
+    .then(() => {
+        // عرض رسالة النجاح وتصفير السلة
+        showSuccessModal(data);
+        state.cart = []; 
+        updateBadge(); 
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        alert("حدث خطأ بسيط، حاول مرة أخرى.");
+        btn.innerText = originalText;
+        btn.disabled = false;
+        btn.style.background = "var(--accent)";
+    });
+}
 
-    window.open(`https://wa.me/962781591754?text=*طلب جديد 🛒*%0A%0A👤 ${data.name}%0A📱 ${data.phone}%0A📍 ${data.city}%0A🏠 ${data.address}${waNote}%0A%0A📦 *الطلبات:*%0A${items}%0A%0A💰 *المجموع شامل التوصيل: ${data.total}*`, '_blank'); 
-    
-    btn.innerText = "تأكيد الطلب 🚀"; 
-    btn.disabled = false; 
-    state.cart = []; 
-    updateBadge(); 
-    closeCheckout(); 
+// 🔥 دالة جديدة: عرض رسالة الشكر الأنيقة 🔥
+function showSuccessModal(data) {
+    document.getElementById('cart-content-wrapper').innerHTML = `
+        <div style="text-align:center; padding:30px 10px; animation: fadeInUp 0.5s;">
+            <div style="font-size:4rem; margin-bottom:10px;">🎉</div>
+            <h2 style="color:var(--primary); font-family:'Marhey'; margin-bottom:15px;">تم استلام طلبك بنجاح!</h2>
+            <p style="color:#555; line-height:1.6; margin-bottom:20px; font-size:1.1rem;">
+                شكراً لك يا <strong>${data.name}</strong>.<br>
+                طلبك محفوظ وسيقوم فريقنا بالتواصل معك قريباً لتأكيد موعد التوصيل.
+            </p>
+            <div style="background:#f0f8ff; padding:15px; border-radius:10px; margin-bottom:20px; font-size:0.9rem; color:#0056b3; border: 1px dashed #0056b3;">
+                رقم طلبك محفوظ عندنا، لا داعي لعمل أي شيء آخر! 🧡
+            </div>
+            <button class="shop-now-btn" onclick="closeCheckout()">متابعة التسوق</button>
+        </div>
+    `;
 }
 
 function closeModal() { 
