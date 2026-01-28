@@ -1,4 +1,4 @@
-// ⚠️ رابط السكربت الخاص بك (تأكد أن الصلاحية Anyone)
+// ⚠️ رابط السكربت الخاص بك
 const API_URL = "https://script.google.com/macros/s/AKfycbzf-O6b5r3H2EAlKsqc1aGZPdnaq4D-1ZHT9TY96XUFvShXbXAQjYeKzZ_D_P3dDmeBtg/exec";
 
 let state = { 
@@ -18,7 +18,6 @@ let slideInterval;
 let heroInterval; 
 let fuse; 
 
-// 🔥 النصوص القانونية الأصلية 🔥
 const sitePolicies = {
     privacy: { 
         title: "🔒 سياسة الخصوصية", 
@@ -81,7 +80,6 @@ window.onload = async () => {
         state.banners = rawData.filter(item => item.category && item.category.trim().toLowerCase() === 'banner');
         state.products = rawData.filter(item => !item.category || item.category.trim().toLowerCase() !== 'banner');
         
-        // تحسين الأداء: تهيئة محرك البحث بدون تعطيل الواجهة
         setTimeout(() => initSearchEngine(), 100);
         initApp();
         
@@ -312,7 +310,7 @@ function startProductAutoSlide() {
     slideInterval = setInterval(() => {
         idx = (idx + 1) % state.currentImages.length;
         const imgEl = document.getElementById('main-preview');
-        if(imgEl) { imgEl.style.opacity = '0'; setTimeout(() => { imgEl.src = fixUrl(state.currentImages[idx]); imgEl.style.opacity = '1'; highlightThumbnail(idx); }, 200); }
+        if(imgEl) { imgEl.style.opacity = '0'; setTimeout(() => { imgEl.src = fixUrl(state.currentImages[idx]); imgEl.style.opacity = '1'; highlightThumbnail(idx, true); }, 200); }
     }, 3000);
 }
 
@@ -329,7 +327,6 @@ function manualSwitch(src, thumbEl, skipScroll) {
     }
 }
 
-// 🔥 تحسين: منع القفز العشوائي عند تغيير الصور 🔥
 function highlightThumbnail(index, skipScroll) { 
     const thumbs = document.querySelectorAll('.thumb-box'); 
     thumbs.forEach(t => t.classList.remove('active')); 
@@ -344,7 +341,6 @@ function highlightThumbnail(index, skipScroll) {
 function openZoomToSpecificImage(url) { if(!url) return; const fixedUrl = fixUrl(url); const index = state.currentImages.findIndex(img => fixUrl(img) === fixedUrl); state.zoomIndex = (index !== -1) ? index : 0; updateZoomView(); document.getElementById('zoom-modal').classList.add('active'); }
 
 function updateVariantQty(name, change, imgUrl) {
-    // 🔥 تحسين: عند تغيير الكمية، لا نجبر الصفحة على القفز (skipScroll = true) 🔥
     if(change > 0 && imgUrl) { manualSwitch(imgUrl, null, true); }
     if (!state.variantTracker[name]) state.variantTracker[name] = 0;
     state.variantTracker[name] += change;
@@ -355,6 +351,7 @@ function updateVariantQty(name, change, imgUrl) {
 
 function updateMainQty(change) { state.mainQty += change; if (state.mainQty < 1) state.mainQty = 1; document.getElementById('main-qty-display').innerText = state.mainQty; }
 
+// 🔥 تعديل: إلغاء التحويل المباشر، وإبقاء العدادات كما هي دون تصفير 🔥
 function addToCart() {
     const p = state.currentProduct;
     let itemsAddedCount = 0;
@@ -367,9 +364,10 @@ function addToCart() {
                 const existingItem = state.cart.find(x => x.cartId === cartItemId);
                 if (existingItem) { existingItem.qty += qty; } else { state.cart.push({ ...p, cartId: cartItemId, name: `${p.name} (${modName})`, qty: qty, price: p.base_price }); }
                 itemsAddedCount += qty;
-                state.variantTracker[modName] = 0;
-                const elId = `qty-${modName.replace(/\s/g, '')}`;
-                if(document.getElementById(elId)) document.getElementById(elId).innerText = "0";
+                
+                // 🛑 تم حذف سطر تصفير العداد عشان يضل الرقم زي ما هو قدام الزبون
+                // state.variantTracker[modName] = 0; 
+                // document.getElementById(elId).innerText = "0";
             }
         }
         if (!hasSelection) return showToast("⚠️ يرجى اختيار كمية لموديل واحد على الأقل");
@@ -378,11 +376,25 @@ function addToCart() {
         const existingItem = state.cart.find(x => x.cartId === cartItemId);
         if (existingItem) { existingItem.qty += state.mainQty; } else { state.cart.push({ ...p, cartId: cartItemId, qty: state.mainQty }); }
         itemsAddedCount = state.mainQty;
-        state.mainQty = 1;
-        document.getElementById('main-qty-display').innerText = "1";
+        
+        // 🛑 تم حذف تصفير العداد الرئيسي
+        // state.mainQty = 1;
+        // document.getElementById('main-qty-display').innerText = "1";
     }
-    updateBadge(); showToast(`✅ تمت إضافة ${itemsAddedCount} قطعة للسلة!`); 
-    const cartBtn = document.querySelector('.cart-btn'); cartBtn.classList.add('shake'); setTimeout(() => cartBtn.classList.remove('shake'), 500); checkIfInCart();
+    updateBadge(); 
+    showToast(`✅ تمت إضافة ${itemsAddedCount} قطعة للسلة!`); 
+    
+    // هز زر السلة عشان يلفت انتباهه
+    const cartBtn = document.querySelector('.cart-btn'); 
+    cartBtn.classList.add('shake'); 
+    setTimeout(() => cartBtn.classList.remove('shake'), 500); 
+    
+    // تحديث الأزرار (عشان يطلع زر "الذهاب للسلة")
+    checkIfInCart();
+
+    // 🛑 تم حذف التحويل المباشر (redirect)
+    // closeModal();
+    // openCheckout();
 
     const totalAddedValue = state.currentProduct.base_price * itemsAddedCount;
 
@@ -475,12 +487,12 @@ function openCheckout() {
             <textarea id="order-note" placeholder="ملاحظات إضافية (اختياري)..." class="form-input" style="height:70px; resize:none;"></textarea>
 
             <button type="submit" id="submit-btn" class="order-submit">تأكيد الطلب (${total.toFixed(2)} JOD) 🚀</button>
+            <button type="button" class="continue-btn" onclick="closeCheckout()">متابعة التسوق لإضافة المزيد ➕</button>
         </form>
     `; 
     document.getElementById('checkout-modal').classList.add('active'); 
 }
 
-// 🔥 تعديل جوهري: إرسال للشيت + عرض رسالة نجاح في الموقع فقط 🔥
 function submitOrder(e) { 
     e.preventDefault(); 
     const btn = document.getElementById('submit-btn'); 
@@ -504,7 +516,6 @@ function submitOrder(e) {
         total: grandTotal.toFixed(2) + " JOD" 
     }; 
 
-    // إرسال البيكسل
     if (typeof fbq !== 'undefined') {
         fbq('track', 'Purchase', {
             value: grandTotal, 
@@ -514,7 +525,6 @@ function submitOrder(e) {
         });
     }
 
-    // الإرسال إلى الشيت
     fetch(API_URL + "?action=order", { 
         method: "POST", 
         mode: "no-cors", 
@@ -522,7 +532,6 @@ function submitOrder(e) {
         body: JSON.stringify(data) 
     })
     .then(() => {
-        // عرض رسالة النجاح وتصفير السلة
         showSuccessModal(data);
         state.cart = []; 
         updateBadge(); 
@@ -536,7 +545,6 @@ function submitOrder(e) {
     });
 }
 
-// 🔥 دالة جديدة: عرض رسالة الشكر الأنيقة 🔥
 function showSuccessModal(data) {
     document.getElementById('cart-content-wrapper').innerHTML = `
         <div style="text-align:center; padding:30px 10px; animation: fadeInUp 0.5s;">
