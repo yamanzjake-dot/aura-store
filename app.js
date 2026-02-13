@@ -1,4 +1,4 @@
-// ⚠️ رابط السكربت الخاص بك
+// ⚠️ رابط السكربت الخاص بك (مهم جداً يضل موجود عشان الطلبات توصل للسبريد شيت)
 const API_URL = "https://script.google.com/macros/s/AKfycbzf-O6b5r3H2EAlKsqc1aGZPdnaq4D-1ZHT9TY96XUFvShXbXAQjYeKzZ_D_P3dDmeBtg/exec";
 
 let state = { 
@@ -76,8 +76,10 @@ const sitePolicies = {
 
 window.onload = async () => {
     try {
-        const res = await fetch(`${API_URL}?action=products`);
+        // 🔥 التعديل هنا: جلب البيانات من الملف السريع مباشرة، مع إضافة كود لمنع الكاش الوهمي
+        const res = await fetch(`data.json?v=${new Date().getTime()}`);
         const rawData = await res.json();
+        
         state.banners = rawData.filter(item => item.category && item.category.trim().toLowerCase() === 'banner');
         state.products = rawData.filter(item => !item.category || item.category.trim().toLowerCase() !== 'banner');
         
@@ -96,7 +98,8 @@ window.onload = async () => {
 
     } catch(e) { 
         console.error("Error loading data:", e);
-        document.getElementById('loader').style.display = 'none';
+        // رسالة تنبيه لك في حال دخلت قبل ما نرفع الملف
+        document.getElementById('loader').innerHTML = '<div style="color:white;text-align:center;">جاري تجهيز المنتجات، قم بتحديث الموقع من السبريد شيت 🚀</div>';
     }
 };
 
@@ -277,7 +280,7 @@ function renderProductModal(p, toggleHtml) {
     if(p.old_price && Number(p.old_price) > Number(p.base_price)) { priceModalHtml = `<div style="display:flex; align-items:center; justify-content:center; gap:10px; margin:10px 0;"><span style="text-decoration:line-through; color:#999; font-size:1.1rem;">${p.old_price} JOD</span><span style="font-size:1.5rem; font-weight:900; color:#D32F2F;">${p.base_price} JOD</span></div>`; }
     
     document.getElementById('modal-sheet-content').innerHTML = `
-        <div class="modal-header-sticky"><h3 style="font-family:'Marhey'; font-size:1rem; margin:0;">تفاصيل المنتج</h3><button class="close-sheet-btn" onclick="closeModal()">✕</button></div>
+        <div class="modal-header-sticky"><h3>تفاصيل المنتج</h3><button class="close-sheet-btn" onclick="closeModal()">✕</button></div>
         <div class="modal-scroll-content">
             <div class="gallery-wrapper">${toggleHtml}<div class="main-img-container"><button class="preview-btn" onclick="openZoom()">🔍</button><img id="main-preview" src="${fixUrl(state.currentImages[0])}" class="main-img-view" onclick="openZoom()"></div><div class="thumbnails-strip">${thumbnailsHtml}</div></div>
             <h2 style="font-family:'Marhey'; color:var(--primary);">${p.name}</h2>
@@ -352,7 +355,6 @@ function updateVariantQty(name, change, imgUrl) {
 
 function updateMainQty(change) { state.mainQty += change; if (state.mainQty < 1) state.mainQty = 1; document.getElementById('main-qty-display').innerText = state.mainQty; }
 
-// 🔥 تعديل: إلغاء التحويل المباشر، وإبقاء العدادات كما هي دون تصفير 🔥
 function addToCart() {
     const p = state.currentProduct;
     let itemsAddedCount = 0;
@@ -365,10 +367,6 @@ function addToCart() {
                 const existingItem = state.cart.find(x => x.cartId === cartItemId);
                 if (existingItem) { existingItem.qty += qty; } else { state.cart.push({ ...p, cartId: cartItemId, name: `${p.name} (${modName})`, qty: qty, price: p.base_price }); }
                 itemsAddedCount += qty;
-                
-                // 🛑 تم حذف سطر تصفير العداد عشان يضل الرقم زي ما هو قدام الزبون
-                // state.variantTracker[modName] = 0; 
-                // document.getElementById(elId).innerText = "0";
             }
         }
         if (!hasSelection) return showToast("⚠️ يرجى اختيار كمية لموديل واحد على الأقل");
@@ -377,25 +375,15 @@ function addToCart() {
         const existingItem = state.cart.find(x => x.cartId === cartItemId);
         if (existingItem) { existingItem.qty += state.mainQty; } else { state.cart.push({ ...p, cartId: cartItemId, qty: state.mainQty }); }
         itemsAddedCount = state.mainQty;
-        
-        // 🛑 تم حذف تصفير العداد الرئيسي
-        // state.mainQty = 1;
-        // document.getElementById('main-qty-display').innerText = "1";
     }
     updateBadge(); 
     showToast(`✅ تمت إضافة ${itemsAddedCount} قطعة للسلة!`); 
     
-    // هز زر السلة عشان يلفت انتباهه
     const cartBtn = document.querySelector('.cart-btn'); 
     cartBtn.classList.add('shake'); 
     setTimeout(() => cartBtn.classList.remove('shake'), 500); 
     
-    // تحديث الأزرار (عشان يطلع زر "الذهاب للسلة")
     checkIfInCart();
-
-    // 🛑 تم حذف التحويل المباشر (redirect)
-    // closeModal();
-    // openCheckout();
 
     const totalAddedValue = state.currentProduct.base_price * itemsAddedCount;
 
