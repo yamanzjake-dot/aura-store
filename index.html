@@ -1,357 +1,179 @@
 <!DOCTYPE html>
-
 <html lang="ar" dir="rtl">
-
 <head>
-
     <meta charset="UTF-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-
     <title>Aura & Luxe</title>
-
     
-
     <meta name="facebook-domain-verification" content="1ly4dt6imnxbx15d3ficfnhtkngvwb" />
 
-
-
     <link href="https://fonts.googleapis.com/css2?family=Marhey:wght@500;700&family=Tajawal:wght@400;500;700;800&display=block" rel="stylesheet">
-
     
-
     <script>
-
     !function(f,b,e,v,n,t,s)
-
     {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-
     n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-
     if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-
     n.queue=[];t=b.createElement(e);t.async=!0;
-
     t.src=v;s=b.getElementsByTagName(e)[0];
-
     s.parentNode.insertBefore(t,s)}(window, document,'script',
-
     'https://connect.facebook.net/en_US/fbevents.js');
-
     
-
     fbq('init', '1387167312649851'); 
-
     fbq('track', 'PageView');
-
     </script>
-
     <noscript><img height="1" width="1" style="display:none"
-
     src="https://www.facebook.com/tr?id=1387167312649851&ev=PageView&noscript=1"
-
     /></noscript>
-
     <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
-
     <link rel="stylesheet" href="styles.css">
-
 </head>
-
 <body>
 
-
-
     <div id="loader" class="loader-overlay">
-
         <div class="loader-content">
-
             <div class="brand-box">
-
                 <span class="brand-main">Aura</span><span class="brand-sub">&Luxe</span>
-
             </div>
-
             <div class="spinner"></div>
-
             <div class="slogan-mask">
-
                 <p class="loader-slogan">لان طفلك يستحق الافضل ❤️</p>
-
             </div>
-
         </div>
-
     </div>
-
-
 
     <div class="top-bar">
-
         <p>لان طفلك يستحق الافضل ❤️</p>
-
     </div>
-
-
 
     <header class="navbar">
-
         <div class="nav-content">
-
             <div class="menu-btn" onclick="toggleSidebar()">
-
                 <span class="bar"></span><span class="bar"></span><span class="bar"></span>
-
             </div>
-
             <div class="brand"><span class="brand-main">Aura</span><span class="brand-sub">&Luxe</span></div>
-
             <div class="cart-btn" onclick="openCheckout()">
-
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
-
                 <span id="cart-badge" class="badge">0</span>
-
             </div>
-
         </div>
-
     </header>
 
-
-
     <div class="search-container">
-
         <div class="search-wrapper">
-
             <input type="text" id="search-input" placeholder="ابحث عن منتج، موديل، أو لون... 🔍" oninput="handleSearch(this.value)">
-
             <div id="search-suggestions" class="suggestions-box"></div>
-
         </div>
-
     </div>
-
-
 
     <div id="sidebar" class="sidebar">
-
         <div class="sidebar-header"><h3>القائمة</h3><button class="close-sidebar" onclick="toggleSidebar()">✕</button></div>
-
         <nav class="sidebar-nav">
-
             <a onclick="toggleSidebar(); window.scrollTo(0,0)">🏠 الرئيسية</a>
-
             <a onclick="scrollToSection('exclusive-section')">🚨 العروض الحصرية</a>
-
             <a onclick="scrollToSection('best-seller-section')">🔥 الأكثر طلباً</a>
-
             <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
-
             <a onclick="openPolicy('shipping')">📦 الشحن والتوصيل</a>
-
             <a onclick="openPolicy('refund')">🔄 الاستبدال والاسترجاع</a>
-
             <a onclick="openPolicy('privacy')">🔒 سياسة الخصوصية</a>
-
             <a onclick="openPolicy('contact')">📞 اتصل بنا</a>
-
         </nav>
-
         <div class="sidebar-footer"><p>Aura & Luxe © 2026</p></div>
-
     </div>
-
     <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-
-
     <main class="container">
-
         <div id="hero-slider" class="hero-slider">
-
             <div class="hero-slide active" style="background-image: url('https://via.placeholder.com/800x400/00B4D8/ffffff?text=Aura+%26+Luxe');"></div>
-
         </div>
-
-
 
         <div id="categories-nav" class="categories-wrapper">
-
             <button class="cat-btn active" onclick="filterByCat(this, 'all')">الكل ✨</button>
-
         </div>
-
-
 
         <section id="exclusive-section" style="display:none;">
-
             <div class="section-header"><h2 class="section-title">🚨 العروض الحصرية</h2></div>
-
             <div id="exclusive-grid" class="horizontal-scroll"></div>
-
         </section>
-
-
 
         <section id="best-seller-section" style="display:none;">
-
             <div class="section-header"><h2 class="section-title">🔥 الأكثر طلباً</h2></div>
-
             <div id="best-seller-grid" class="horizontal-scroll"></div>
-
         </section>
 
-
-
         <h2 id="main-products-title" class="section-title">✨ جميع المنتجات</h2>
-
         <div id="products-grid" class="grid"></div>
 
-
-
         <div class="hidden-stock-section">
-
             <h3>لسه ما شفت كل شي! 😉</h3>
-
             <p>عندنا موديلات بالمستودع لسه ما انعرضت. تواصل معنا!</p>
-
             <button class="hidden-btn" onclick="openHiddenRequest()">شوفي عندكم كمان؟ (واتساب)</button>
-
         </div>
-
     </main>
 
-
-
     <div class="floating-contact">
-
         <a href="https://wa.me/962781591754" target="_blank" class="float-btn whatsapp" 
-
            onclick="fbq('track', 'Contact', {content_name: 'WhatsApp Button'});">
-
             <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.711 2.592 2.654-.696c1.005.572 1.973.89 3.03.89 3.178 0 5.767-2.587 5.767-5.77 0-3.18-2.587-5.765-5.766-5.765zm9.924 5.766c0 5.484-4.456 9.968-9.932 9.968-1.74 0-3.345-.483-4.968-1.328l-5.695 1.492 1.517-5.56C1.996 14.87 1.39 13.14 1.39 11.938c0-5.492 4.446-9.969 9.93-9.969 5.482 0 9.936 4.465 9.936 9.965z"/></svg>
-
         </a>
-
         <a href="https://facebook.com/Aurandluxe" target="_blank" class="float-btn facebook"
-
            onclick="fbq('track', 'Contact', {content_name: 'Facebook Button'});">
-
             <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M9.101 23.691v-7.98H6.627v-3.667h2.474v-1.58c0-4.085 1.848-5.978 5.858-5.978.401 0 .955.042 1.468.103a8.68 8.68 0 0 1 1.141.195v3.325a8.623 8.623 0 0 0-.653-.036c-2.148 0-2.797 1.66-2.797 3.54v1.212h4.157l-1.04 3.667h-3.117v7.98h-5.02z"/></svg>
-
         </a>
-
         <a href="https://www.instagram.com/aurandluxe/" target="_blank" class="float-btn instagram"
-
            onclick="fbq('track', 'Contact', {content_name: 'Instagram Button'});">
-
             <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
-
         </a>
-
     </div>
-
-
 
     <footer class="main-footer">
-
         <div class="social-links-container">
-
             <a href="https://facebook.com/Aurandluxe" target="_blank" class="social-icon fb">Facebook</a>
-
             <a href="https://www.instagram.com/aurandluxe/" target="_blank" class="social-icon insta">Instagram</a>
-
         </div>
-
         <div class="footer-links">
-
             <span onclick="openPolicy('privacy')">الخصوصية</span> • 
-
             <span onclick="openPolicy('terms')">الشروط</span> • 
-
             <span onclick="openPolicy('contact')">اتصل بنا</span>
-
         </div>
-
         <p class="copy">جميع الحقوق محفوظة © Aura & Luxe 2026</p>
-
         <p class="disclaimer">This site is not a part of the Facebook website or Facebook Inc. Additionally, This site is NOT endorsed by Facebook in any way. FACEBOOK is a trademark of FACEBOOK, Inc.</p>
-
     </footer>
 
-
-
     <div id="product-modal" class="modal-overlay">
-
         <div class="modal-sheet" id="modal-sheet-content"></div>
-
     </div>
-
-
 
     <div id="checkout-modal" class="modal-overlay">
-
         <div class="modal-sheet checkout-sheet">
-
             <div class="modal-header-sticky">
-
                 <h2 class="section-title" style="margin:0;">إتمام الطلب 🛍️</h2>
-
                 <button class="close-sheet-btn" onclick="closeCheckout()">✕</button>
-
             </div>
-
             <div class="modal-scroll-content" id="cart-content-wrapper"></div>
-
         </div>
-
     </div>
-
-
 
     <div id="policy-modal" class="modal-overlay">
-
         <div class="modal-sheet">
-
             <div class="modal-header-sticky">
-
                 <h2 id="p-title" style="margin:0; font-family:'Marhey'; color:var(--primary);"></h2>
-
                 <button class="close-sheet-btn" onclick="closePolicy()">✕</button>
-
             </div>
-
             <div class="modal-scroll-content"><p id="p-text"></p></div>
-
         </div>
-
     </div>
-
-
 
     <div id="zoom-modal" class="zoom-overlay">
-
         <button class="zoom-nav-btn prev" onclick="zoomNavigate(-1)">&#10094;</button>
-
         <div class="zoom-content-wrapper">
-
             <img id="zoom-img" src="">
-
             <div class="zoom-counter" id="zoom-counter"></div>
-
         </div>
-
         <button class="zoom-nav-btn next" onclick="zoomNavigate(1)">&#10095;</button>
-
         <button class="close-zoom" onclick="closeZoom()">✕</button>
-
     </div>
 
-
-
     <script src="app.js"></script>
-
 </body>
-
 </html>
