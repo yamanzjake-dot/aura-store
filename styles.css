@@ -190,6 +190,6 @@ body {
 .zoom-nav-btn.prev { left: 20px; }
 .zoom-nav-btn.next { right: 20px; }
 
-/* زر متابعة التسوق الجديد */
+/* 🔥 زر متابعة التسوق الجديد 🔥 */
 .continue-btn { width: 100%; padding: 12px; background: transparent; color: #555; border: 2px solid #eee; border-radius: 12px; font-weight: bold; margin-top: 10px; cursor: pointer; transition: 0.2s; }
 .continue-btn:active { background: #f9f9f9; transform: scale(0.98); }
