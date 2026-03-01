@@ -1,5 +1,5 @@
-// ⚠️ رابط السكربت الخاص بك (مهم جداً يضل موجود عشان الطلبات توصل للسبريد شيت)
-const API_URL = "https://script.google.com/macros/s/AKfycbzf-O6b5r3H2EAlKsqc1aGZPdnaq4D-1ZHT9TY96XUFvShXbXAQjYeKzZ_D_P3dDmeBtg/exec";
+// 🔥 تم تحديث الرابط الجديد عشان ميزة التتبع 🔥
+const API_URL = "https://script.google.com/macros/s/AKfycbw-KXbFMuPGj1FT0BkmKZk9IyOyPFbpM-UYTGHZl1ox-o6tfz0RdHcjbj54-S8jWPT2lA/exec";
 
 let state = { 
     products: [], 
@@ -76,7 +76,6 @@ const sitePolicies = {
 
 window.onload = async () => {
     try {
-        // 🔥 التعديل هنا: جلب البيانات من الملف السريع مباشرة، مع إضافة كود لمنع الكاش الوهمي
         const res = await fetch(`data.json?v=${new Date().getTime()}`);
         const rawData = await res.json();
         
@@ -98,7 +97,6 @@ window.onload = async () => {
 
     } catch(e) { 
         console.error("Error loading data:", e);
-        // رسالة تنبيه لك في حال دخلت قبل ما نرفع الملف
         document.getElementById('loader').innerHTML = '<div style="color:white;text-align:center;">جاري تجهيز المنتجات، قم بتحديث الموقع من السبريد شيت 🚀</div>';
     }
 };
@@ -494,8 +492,12 @@ function submitOrder(e) {
     const subtotal = state.cart.reduce((s, i) => s + (Number(i.base_price) * i.qty), 0);
     const grandTotal = subtotal + 3;
     const note = document.getElementById('order-note').value;
+    
+    // 🔥 توليد رقم الطلب هنا 🔥
+    const orderId = "AURA-" + Math.floor(100000 + Math.random() * 900000);
 
     const data = { 
+        orderId: orderId, // تم إرسال الرقم للسيرفر
         name: document.getElementById('cust-name').value, 
         phone: document.getElementById('cust-phone').value, 
         city: document.getElementById('cust-city').value, 
@@ -534,22 +536,111 @@ function submitOrder(e) {
     });
 }
 
+// 🔥 تحديث شاشة النجاح عشان يظهر رقم الطلب باللون الأحمر مع زر التتبع 🔥
 function showSuccessModal(data) {
     document.getElementById('cart-content-wrapper').innerHTML = `
-        <div style="text-align:center; padding:30px 10px; animation: fadeInUp 0.5s;">
+        <div style="text-align:center; padding:20px 10px; animation: fadeInUp 0.5s;">
             <div style="font-size:4rem; margin-bottom:10px;">🎉</div>
             <h2 style="color:var(--primary); font-family:'Marhey'; margin-bottom:15px;">تم استلام طلبك بنجاح!</h2>
-            <p style="color:#555; line-height:1.6; margin-bottom:20px; font-size:1.1rem;">
+            <p style="color:#555; line-height:1.6; margin-bottom:15px; font-size:1.1rem;">
                 شكراً لك يا <strong>${data.name}</strong>.<br>
-                طلبك محفوظ وسيقوم فريقنا بالتواصل معك قريباً لتأكيد موعد التوصيل.
             </p>
-            <div style="background:#f0f8ff; padding:15px; border-radius:10px; margin-bottom:20px; font-size:0.9rem; color:#0056b3; border: 1px dashed #0056b3;">
-                رقم طلبك محفوظ عندنا، لا داعي لعمل أي شيء آخر! 🧡
+            
+            <div style="background:#fff3cd; padding:15px; border-radius:10px; margin-bottom:20px; border: 1px dashed #ffeeba;">
+                <span style="display:block; font-size:0.9rem; color:#856404; margin-bottom:5px;">رقم طلبك هو:</span>
+                <span id="order-id-display" onclick="copyOrderId('${data.orderId}')" style="font-size:1.6rem; font-weight:900; color:#D32F2F; letter-spacing:1px; cursor:pointer; display:inline-block; padding:5px 15px; background:#fff; border-radius:8px; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${data.orderId} 📋</span>
+                <div style="font-size:0.8rem; color:#666; margin-top:5px;">(اضغط على الرقم لنسخه)</div>
             </div>
-            <button class="shop-now-btn" onclick="closeCheckout()">متابعة التسوق</button>
+
+            <button class="order-submit" onclick="openTrackingModal('${data.orderId}')" style="margin-bottom:10px;">📦 تتبع طلبي الآن</button>
+            <button class="continue-btn" onclick="closeCheckout()">العودة للتسوق</button>
         </div>
     `;
 }
+
+function copyOrderId(id) {
+    navigator.clipboard.writeText(id).then(() => showToast("✅ تم نسخ رقم الطلب بنجاح!"));
+}
+
+// ==========================================
+// 🔥 أكواد التتبع الذكية الجديدة 🔥
+// ==========================================
+function openTrackingModal(prefillId = '') {
+    closeCheckout(); 
+    if(document.getElementById('sidebar').classList.contains('active')) toggleSidebar();
+    
+    document.getElementById('track-modal').classList.add('active');
+    if (prefillId) document.getElementById('track-input').value = prefillId;
+    document.getElementById('track-result').innerHTML = '';
+}
+
+function closeTrackingModal() {
+    document.getElementById('track-modal').classList.remove('active');
+}
+
+async function trackOrder() {
+    const query = document.getElementById('track-input').value.trim();
+    const btn = document.getElementById('track-btn');
+    const resultDiv = document.getElementById('track-result');
+
+    if (!query) {
+        showToast("⚠️ يرجى إدخال رقم الطلب أو رقم الهاتف");
+        return;
+    }
+
+    btn.innerText = "جاري البحث... ⏳";
+    btn.disabled = true;
+    resultDiv.innerHTML = '';
+
+    try {
+        const res = await fetch(`${API_URL}?action=track&query=${encodeURIComponent(query)}`);
+        const data = await res.json();
+
+        if (data.success) {
+            let statusIcon = "📦";
+            let statusColor = "#f39c12"; // برتقالي
+            let statusDesc = "طلبك قيد التجهيز في مستودعاتنا، وسيتم تسليمه لشركة الشحن قريباً.";
+
+            if (data.order.status.includes("مندوب") || data.order.status.includes("توصيل") || data.order.status.includes("طريق")) {
+                statusIcon = "🚚";
+                statusColor = "var(--primary)";
+                statusDesc = "طلبك الآن مع المندوب وفي طريقه إليك! يرجى إبقاء هاتفك متاحاً.";
+            } else if (data.order.status.includes("تم") || data.order.status.includes("تسليم") || data.order.status.includes("نجاح")) {
+                statusIcon = "✅";
+                statusColor = "#2ecc71"; // أخضر
+                statusDesc = "تم تسليم الطلب بنجاح. نتمنى أن ينال إعجابكم، ولا تنسوا تشاركونا رأيكم!";
+            }
+
+            resultDiv.innerHTML = `
+                <div style="background:#f9f9f9; border:2px solid ${statusColor}; border-radius:12px; padding:20px; text-align:center; margin-top:20px; animation: fadeInUp 0.4s;">
+                    <div style="font-size:3rem; margin-bottom:10px;">${statusIcon}</div>
+                    <h3 style="color:${statusColor}; margin-bottom:10px; font-family:'Marhey';">${data.order.status}</h3>
+                    <p style="color:#555; font-size:0.95rem; line-height:1.6;">${statusDesc}</p>
+                    <div style="margin-top:15px; padding-top:15px; border-top:1px dashed #ddd; font-size:0.85rem; color:#777;">
+                        رقم الطلب: <strong>${data.order.orderId}</strong> | الاسم: <strong>${data.order.name}</strong>
+                    </div>
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div style="background:#ffeeee; border:2px solid #ffcccc; border-radius:12px; padding:20px; text-align:center; margin-top:20px; animation: fadeInUp 0.4s;">
+                    <div style="font-size:3rem; margin-bottom:10px;">❌</div>
+                    <h3 style="color:#D32F2F; margin-bottom:10px; font-family:'Marhey';">لم يتم العثور على الطلب</h3>
+                    <p style="color:#555; font-size:0.95rem; line-height:1.6;">تأكد من إدخال رقم الطلب (AURA-...) أو رقم الهاتف بشكل صحيح.</p>
+                    <a href="https://wa.me/962781591754" target="_blank" style="display:inline-block; margin-top:15px; background:#25D366; color:#fff; padding:8px 20px; border-radius:50px; text-decoration:none; font-weight:bold;">تواصل مع الدعم عبر واتساب</a>
+                </div>
+            `;
+        }
+    } catch (err) {
+        console.error(err);
+        resultDiv.innerHTML = `<div style="color:red; text-align:center; padding:10px; margin-top:10px;">حدث خطأ في الاتصال، يرجى المحاولة لاحقاً.</div>`;
+    }
+
+    btn.innerText = "ابحث عن طلبي 🚀";
+    btn.disabled = false;
+}
+
+// ==========================================
 
 function closeModal() { 
     document.getElementById('product-modal').classList.remove('active'); 
