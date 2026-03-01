@@ -42,7 +42,7 @@ window.onload = async () => {
 
     } catch(e) { 
         console.error("Error loading data:", e);
-        document.getElementById('loader').innerHTML = '<div style="color:white;text-align:center;">جاري تجهيز المنتجات، قم بتحديث الموقع من السبريد شيت 🚀</div>';
+        document.getElementById('loader').innerHTML = '<div style="color:white;text-align:center;">جاري تجهيز المنتجات، قم بتحديث الموقع 🚀</div>';
     }
 };
 
@@ -294,7 +294,7 @@ function showSuccessModal(data) {
 function copyOrderId(id) { navigator.clipboard.writeText(id).then(() => showToast("✅ تم نسخ رقم الطلب بنجاح!")); }
 
 // ==========================================
-// 🔥 أكواد التتبع الذكية مع الرابط المباشر والأنيميشن الكرتوني والمنتجات 🔥
+// 🔥 أكواد التتبع الذكية مع الرابط المباشر والأنيميشن الكرتوني (بدون منتجات) 🔥
 // ==========================================
 function openTrackingModal(prefillId = '') {
     closeCheckout(); 
@@ -342,8 +342,6 @@ async function trackOrder() {
                 iconHtml = "🎉"; iconClass = "icon-success"; sColor = "#2ecc71"; sDesc = "تم تسليم الطلب بنجاح. نتمنى أن ينال إعجابكم!";
             }
 
-            let cleanItems = String(order.items || "").replace(/\n/g, '<br>• ');
-
             resultDiv.innerHTML = `
                 <style>
                     @keyframes bounceBox { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
@@ -359,16 +357,7 @@ async function trackOrder() {
                     <h3 style="color:${sColor}; margin-bottom:10px; font-family:'Marhey';">${order.status}</h3>
                     <p style="color:#555; font-size:0.95rem; line-height:1.6; margin-bottom:15px;">${sDesc}</p>
                     
-                    <div style="background:#fff; border-radius:8px; padding:15px; border:1px solid #eee; text-align:right; margin-bottom:15px;">
-                        <div style="color:#888; font-size:0.85rem; margin-bottom:5px;">المنتجات المطلوبة:</div>
-                        <div style="color:#333; font-size:0.9rem; font-weight:bold; line-height:1.5;">• ${cleanItems}</div>
-                        <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #ddd; display:flex; justify-content:space-between; font-weight:bold; color:var(--primary);">
-                            <span>المجموع الكلي:</span>
-                            <span>${order.total || '-'}</span>
-                        </div>
-                    </div>
-
-                    <div style="font-size:0.85rem; color:#777;">
+                    <div style="font-size:0.85rem; color:#777; border-top:1px dashed #ddd; padding-top:15px; margin-top:5px;">
                         رقم الطلب: <strong>${order.orderId}</strong> | الاسم: <strong>${order.name}</strong>
                     </div>
                     
