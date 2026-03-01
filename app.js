@@ -1,4 +1,4 @@
-// 🔥 تم تحديث الرابط الجديد عشان ميزة التتبع 🔥
+// 🔥 الرابط الخاص فيك
 const API_URL = "https://script.google.com/macros/s/AKfycbw-KXbFMuPGj1FT0BkmKZk9IyOyPFbpM-UYTGHZl1ox-o6tfz0RdHcjbj54-S8jWPT2lA/exec";
 
 let state = { 
@@ -90,9 +90,19 @@ window.onload = async () => {
 
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
+        const trackId = urlParams.get('track'); // 🔥 قراءة رقم التتبع من الرابط المباشر
+
         if (productId) {
             const p = state.products.find(x => x.id == productId);
             if (p) openProduct(productId);
+        }
+
+        // 🔥 إذا كان الرابط بيحتوي على رقم تتبع، افتح النافذة وابحث فوراً
+        if (trackId) {
+            setTimeout(() => {
+                openTrackingModal(trackId);
+                trackOrder();
+            }, 800);
         }
 
     } catch(e) { 
@@ -493,11 +503,10 @@ function submitOrder(e) {
     const grandTotal = subtotal + 3;
     const note = document.getElementById('order-note').value;
     
-    // 🔥 توليد رقم الطلب هنا 🔥
     const orderId = "AURA-" + Math.floor(100000 + Math.random() * 900000);
 
     const data = { 
-        orderId: orderId, // تم إرسال الرقم للسيرفر
+        orderId: orderId, 
         name: document.getElementById('cust-name').value, 
         phone: document.getElementById('cust-phone').value, 
         city: document.getElementById('cust-city').value, 
@@ -536,7 +545,6 @@ function submitOrder(e) {
     });
 }
 
-// 🔥 تحديث شاشة النجاح عشان يظهر رقم الطلب باللون الأحمر مع زر التتبع 🔥
 function showSuccessModal(data) {
     document.getElementById('cart-content-wrapper').innerHTML = `
         <div style="text-align:center; padding:20px 10px; animation: fadeInUp 0.5s;">
@@ -563,7 +571,7 @@ function copyOrderId(id) {
 }
 
 // ==========================================
-// 🔥 أكواد التتبع الذكية الجديدة 🔥
+// 🔥 أكواد التتبع الذكية مع الرابط المباشر والصور الكرتونية 🔥
 // ==========================================
 function openTrackingModal(prefillId = '') {
     closeCheckout(); 
@@ -576,6 +584,11 @@ function openTrackingModal(prefillId = '') {
 
 function closeTrackingModal() {
     document.getElementById('track-modal').classList.remove('active');
+    
+    // تنظيف الرابط عشان لو سكر النافذة ما يضل الرابط معلق عالتتبع
+    const url = new URL(window.location);
+    url.searchParams.delete('track');
+    window.history.pushState({}, '', url);
 }
 
 async function trackOrder() {
@@ -597,23 +610,24 @@ async function trackOrder() {
         const data = await res.json();
 
         if (data.success) {
-            let statusIcon = "📦";
+            // 🔥 الصور الكرتونية المتحركة (3D Animated GIFs)
+            let animUrl = "https://fonts.gstatic.com/s/e/notoemoji/latest/1f4e6/512.gif"; // كرتونة بتتحرك (قيد التجهيز)
             let statusColor = "#f39c12"; // برتقالي
             let statusDesc = "طلبك قيد التجهيز في مستودعاتنا، وسيتم تسليمه لشركة الشحن قريباً.";
 
             if (data.order.status.includes("مندوب") || data.order.status.includes("توصيل") || data.order.status.includes("طريق")) {
-                statusIcon = "🚚";
+                animUrl = "https://fonts.gstatic.com/s/e/notoemoji/latest/1f69a/512.gif"; // شاحنة بتمشي (مع المندوب)
                 statusColor = "var(--primary)";
                 statusDesc = "طلبك الآن مع المندوب وفي طريقه إليك! يرجى إبقاء هاتفك متاحاً.";
             } else if (data.order.status.includes("تم") || data.order.status.includes("تسليم") || data.order.status.includes("نجاح")) {
-                statusIcon = "✅";
+                animUrl = "https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif"; // احتفال (تم التسليم)
                 statusColor = "#2ecc71"; // أخضر
                 statusDesc = "تم تسليم الطلب بنجاح. نتمنى أن ينال إعجابكم، ولا تنسوا تشاركونا رأيكم!";
             }
 
             resultDiv.innerHTML = `
                 <div style="background:#f9f9f9; border:2px solid ${statusColor}; border-radius:12px; padding:20px; text-align:center; margin-top:20px; animation: fadeInUp 0.4s;">
-                    <div style="font-size:3rem; margin-bottom:10px;">${statusIcon}</div>
+                    <img src="${animUrl}" alt="حالة الطلب" style="width:100px; height:100px; margin-bottom:10px;">
                     <h3 style="color:${statusColor}; margin-bottom:10px; font-family:'Marhey';">${data.order.status}</h3>
                     <p style="color:#555; font-size:0.95rem; line-height:1.6;">${statusDesc}</p>
                     <div style="margin-top:15px; padding-top:15px; border-top:1px dashed #ddd; font-size:0.85rem; color:#777;">
