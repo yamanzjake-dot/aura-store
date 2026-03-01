@@ -5,11 +5,11 @@ let state = { products: [], banners: [], cart: [], currentProduct: null, studioI
 let slideInterval; let heroInterval; let fuse; 
 
 const sitePolicies = {
-    privacy: { title: "🔒 سياسة الخصوصية", content: `<div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;"><p><strong>1. مقدمة:</strong><br>نحن في <strong>Aura & Luxe</strong> نولي اهتماماً كبيراً لخصوصية زوارنا وعملائنا...</p></div>` },
-    shipping: { title: "📦 سياسة الشحن والتوصيل", content: `<div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;"><p><strong>1. مناطق التوصيل:</strong><br>نقوم بالتوصيل إلى جميع المحافظات...</p></div>` },
-    refund: { title: "🔄 سياسة الاستبدال والاسترجاع", content: `<div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;"><p><strong>1. حق المعاينة :</strong><br>يحق للعميل فتح الطرد ومعاينة المنتج بالكامل أمام المندوب <strong>قبل الدفع</strong>...</p></div>` },
-    contact: { title: "📞 معلومات التواصل والدعم", content: `<div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;"><p><strong>📱 رقم الهاتف / واتساب:</strong><br><a href="tel:962781591754" style="color:var(--primary); font-weight:bold;">0781591754</a></p></div>` },
-    terms: { title: "⚖️ شروط الاستخدام وإخلاء المسؤولية", content: `<div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;"><p><strong>1. الأسعار والدفع:</strong><br>جميع الأسعار المعروضة بالدينار الأردني (JOD) وهي نهائية. الدفع نقداً عند الاستلام.</p></div>` }
+    privacy: { title: "🔒 سياسة الخصوصية", content: `<div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;"><p><strong>1. مقدمة:</strong><br>نحن في <strong>Aura & Luxe</strong> نولي اهتماماً كبيراً لخصوصية زوارنا وعملائنا. توضح هذه السياسة كيفية جمع واستخدام وحماية معلوماتك الشخصية.</p><p><strong>2. المعلومات التي نجمعها:</strong><br>عند إتمام الطلب، نقوم بجمع المعلومات التالية فقط لغايات التوصيل:<br>- الاسم الكامل.<br>- رقم الهاتف.<br>- العنوان التفصيلي (المدينة، المنطقة، المعلم القريب).</p><p><strong>3. استخدام المعلومات:</strong><br>نستخدم بياناتك حصراً لـ:<br>- معالجة طلبك وتوصيله إليك.<br>- التواصل معك في حال وجود تحديثات حول الطلب.<br>- تحسين تجربة المستخدم في موقعنا.</p><p><strong>4. مشاركة البيانات:</strong><br>نحن لا نقوم ببيع أو تأجير أو مشاركة بياناتك مع أي طرف ثالث لأغراض تسويقية. تتم مشاركة العنوان ورقم الهاتف فقط مع <strong>شركة الشحن</strong> المعتمدة لدينا لضمان وصول الطلب.</p><p><strong>5. ملفات تعريف الارتباط (Cookies):</strong><br>يستخدم موقعنا ملفات تعريف الارتباط (مثل Facebook Pixel) لتحسين تجربتك الإعلانية وتحليل أداء الموقع، دون الوصول إلى بياناتك الشخصية الحساسة.</p></div>` },
+    shipping: { title: "📦 سياسة الشحن والتوصيل", content: `<div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;"><p><strong>1. مناطق التوصيل:</strong><br>نقوم بالتوصيل إلى جميع محافظات المملكة الأردنية الهاشمية (شمال، وسط، جنوب).</p><p><strong>2. مدة التوصيل:</strong><br>- <strong>عمان والزرقاء:</strong> خلال 24 - 48 ساعة من تأكيد الطلب.<br>- <strong>باقي المحافظات:</strong> خلال 48 - 72 ساعة.</p><p><strong>3. رسوم التوصيل:</strong><br>رسوم التوصيل ثابتة (3 دنانير) تضاف تلقائياً إلى فاتورتك النهائية عند إتمام الطلب.</p><p><strong>4. عملية التسليم:</strong><br>سيقوم مندوب التوصيل بالاتصال بك قبل الوصول. في حال عدم الرد لأكثر من مرة، قد يتم إلغاء الطلب أو تأجيله لليوم التالي.</p></div>` },
+    refund: { title: "🔄 سياسة الاستبدال والاسترجاع", content: `<div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;"><p><strong>1. حق المعاينة :</strong><br>يحق للعميل فتح الطرد ومعاينة المنتج بالكامل أمام المندوب <strong>قبل الدفع</strong>. إذا لم يعجبك المنتج أو كان غير مطابق، يمكنك رفض استلامه ودفع رسوم التوصيل فقط للمندوب.</p><p><strong>2. وجود عيب مصنعي:</strong><br>في حال اكتشاف عيب مصنعي بعد الاستلام، يحق لك طلب استبدال المنتج مجاناً خلال <strong>3 أيام</strong> من تاريخ الاستلام، بشرط أن يكون المنتج بحالته الأصلية ومع كامل ملحقاته.</p><p><strong>3. الاستبدال برغبة العميل:</strong><br>إذا رغبت في استبدال المنتج لسبب غير متعلق بعيب مصنعي (تغيير رأي)، يتم ذلك خلال 3 أيام مع تحمل العميل رسوم التوصيل الإضافية.</p><p><strong>4. في حال وجود ممنوع المعاينة :</strong><br>في حال وجود ملاحظة (ممنوع المعاينة)، يقتصر حق العميل على التأكد من دقة اللون والنمط الظاهري فقط وبحضور المندوب، دون فتح التغليف الداخلي أو تجربة المنتج. وبمجرد استلام المنتج وانصراف المندوب، يعتبر ذلك إقراراً من العميل بمطابقة اللون والمواصفات الشكلية، ولا يقبل المتجر أي اعتراض بخصوصها لاحقاً. علماً أن التبديل لأي أسباب أخرى يخضع لسياسة المتجر خلال 3 أيام عمل..</p></div>` },
+    contact: { title: "📞 معلومات التواصل والدعم", content: `<div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;"><p>فريق خدمة العملاء جاهز لمساعدتكم على مدار الساعة.</p><hr style="border:0; border-top:1px solid #eee; margin:10px 0;"><p><strong>📱 رقم الهاتف / واتساب:</strong><br><a href="tel:962781591754" style="color:var(--primary); font-weight:bold; font-size:1.1rem;">0781591754</a></p><p><strong>📧 البريد الإلكتروني:</strong><br><a href="mailto:babyandtoddlerss@gmail.com" style="color:var(--primary); font-weight:bold;">babyandtoddlerss@gmail.com</a></p><p><strong>📍 العنوان:</strong><br>الأردن - متجر إلكتروني (Online Store)</p></div>` },
+    terms: { title: "⚖️ شروط الاستخدام وإخلاء المسؤولية", content: `<div style="text-align: right; line-height: 1.8; font-size: 0.95rem; color: #444;"><p><strong>1. الأسعار والدفع:</strong><br>جميع الأسعار المعروضة بالدينار الأردني (JOD) وهي نهائية. الدفع يتم نقداً عند الاستلام (Cash on Delivery).</p><p><strong>2. المصداقية في الطلب:</strong><br>تأكيدك للطلب عبر الموقع يعتبر التزاماً بالشراء. الطلبات الوهمية تسبب ضرراً للمتجر وقد تعرض صاحبها للمساءلة.</p><p><strong>3. إخلاء مسؤولية فيسبوك (Facebook Disclaimer):</strong><br><span style="font-size:0.8rem; color:#666;">This site is not a part of the Facebook website or Facebook Inc. Additionally, This site is NOT endorsed by Facebook in any way. FACEBOOK is a trademark of FACEBOOK, Inc.</span></p><p>نحن نستخدم منصة فيسبوك للإعلان فقط، ولا نمثل شركة فيسبوك بشكل رسمي.</p></div>` }
 };
 
 window.onload = async () => {
@@ -28,10 +28,9 @@ window.onload = async () => {
 
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
-        
-        // 🔥 فحص وجود رابط التتبع
+        const trackId = urlParams.get('track');
+
         if (urlParams.has('track')) {
-            const trackId = urlParams.get('track');
             setTimeout(() => {
                 openTrackingModal(trackId);
                 if(trackId && trackId.trim() !== '') trackOrder();
@@ -43,7 +42,7 @@ window.onload = async () => {
 
     } catch(e) { 
         console.error("Error loading data:", e);
-        document.getElementById('loader').innerHTML = '<div style="color:white;text-align:center;">جاري تجهيز المنتجات، قم بتحديث الموقع 🚀</div>';
+        document.getElementById('loader').innerHTML = '<div style="color:white;text-align:center;">جاري تجهيز المنتجات، قم بتحديث الموقع من السبريد شيت 🚀</div>';
     }
 };
 
@@ -295,7 +294,7 @@ function showSuccessModal(data) {
 function copyOrderId(id) { navigator.clipboard.writeText(id).then(() => showToast("✅ تم نسخ رقم الطلب بنجاح!")); }
 
 // ==========================================
-// 🔥 أكواد التتبع الذكية مع الرابط المباشر والصور الكرتونية والمنتجات 🔥
+// 🔥 أكواد التتبع الذكية مع الرابط المباشر والأنيميشن الكرتوني والمنتجات 🔥
 // ==========================================
 function openTrackingModal(prefillId = '') {
     closeCheckout(); 
@@ -305,14 +304,12 @@ function openTrackingModal(prefillId = '') {
     if (prefillId) document.getElementById('track-input').value = prefillId;
     document.getElementById('track-result').innerHTML = '';
 
-    // 🔥 تغيير الرابط في المتصفح عشان يصير رابط خاص 🔥
     const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?track=' + (prefillId || '');
     window.history.pushState({ path: newUrl }, '', newUrl);
 }
 
 function closeTrackingModal() {
     document.getElementById('track-modal').classList.remove('active');
-    // تنظيف الرابط عشان لو سكر النافذة يرجع للرئيسية
     const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
     window.history.pushState({ path: cleanUrl }, '', cleanUrl);
 }
@@ -326,7 +323,6 @@ async function trackOrder() {
 
     btn.innerText = "جاري البحث... ⏳"; btn.disabled = true; resultDiv.innerHTML = '';
 
-    // تحديث الرابط برقم البحث الحالي
     const newUrl = window.location.protocol + "//" + window.location.host + window.location.pathname + '?track=' + query;
     window.history.pushState({ path: newUrl }, '', newUrl);
 
@@ -335,42 +331,49 @@ async function trackOrder() {
         const data = await res.json();
 
         if (data.success) {
-            let animUrl = "https://fonts.gstatic.com/s/e/notoemoji/latest/1f4e6/512.gif"; 
-            let statusColor = "#f39c12"; 
-            let statusDesc = "طلبك قيد التجهيز في مستودعاتنا، وسيتم تسليمه لشركة الشحن قريباً.";
-
-            if (data.order.status.includes("مندوب") || data.order.status.includes("توصيل") || data.order.status.includes("طريق")) {
-                animUrl = "https://fonts.gstatic.com/s/e/notoemoji/latest/1f69a/512.gif"; 
-                statusColor = "var(--primary)";
-                statusDesc = "طلبك الآن مع المندوب وفي طريقه إليك! يرجى إبقاء هاتفك متاحاً.";
-            } else if (data.order.status.includes("تم") || data.order.status.includes("تسليم") || data.order.status.includes("نجاح")) {
-                animUrl = "https://fonts.gstatic.com/s/e/notoemoji/latest/1f389/512.gif"; 
-                statusColor = "#2ecc71"; 
-                statusDesc = "تم تسليم الطلب بنجاح. نتمنى أن ينال إعجابكم!";
+            const order = data.order;
+            
+            // إعداد الأيقونات والرسومات المبرمجة
+            let iconHtml = "📦"; let iconClass = "icon-prep"; let sColor = "#f39c12"; let sDesc = "طلبك قيد التجهيز في مستودعاتنا، وسيتم تسليمه لشركة الشحن قريباً.";
+            
+            if (order.status.includes("مندوب") || order.status.includes("توصيل") || order.status.includes("طريق")) {
+                iconHtml = "🚚"; iconClass = "icon-delivery"; sColor = "var(--primary)"; sDesc = "طلبك الآن مع المندوب وفي طريقه إليك! يرجى إبقاء هاتفك متاحاً.";
+            } else if (order.status.includes("تم") || order.status.includes("تسليم") || order.status.includes("نجاح")) {
+                iconHtml = "🎉"; iconClass = "icon-success"; sColor = "#2ecc71"; sDesc = "تم تسليم الطلب بنجاح. نتمنى أن ينال إعجابكم!";
             }
 
-            // تنظيف عرض المنتجات عشان يبين مرتب للزبون
-            let cleanItems = String(data.order.items || "منتجات غير معروفة").replace(/\n/g, '<br>• ');
+            let cleanItems = String(order.items || "").replace(/\n/g, '<br>• ');
 
             resultDiv.innerHTML = `
-                <div style="background:#f9f9f9; border:2px solid ${statusColor}; border-radius:12px; padding:20px; text-align:center; margin-top:20px; animation: fadeInUp 0.4s;">
-                    <img src="${animUrl}" alt="حالة الطلب" style="width:100px; height:100px; margin-bottom:10px;">
-                    <h3 style="color:${statusColor}; margin-bottom:10px; font-family:'Marhey';">${data.order.status}</h3>
-                    <p style="color:#555; font-size:0.95rem; line-height:1.6; margin-bottom:15px;">${statusDesc}</p>
+                <style>
+                    @keyframes bounceBox { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-15px) rotate(5deg); } }
+                    .icon-prep { animation: bounceBox 1.5s infinite ease-in-out; display:inline-block; font-size:4.5rem; margin-bottom:10px; }
+                    @keyframes driveTruck { 0% { transform: translateX(20px); opacity: 0; } 20% { opacity: 1; transform: translateX(10px); } 80% { opacity: 1; transform: translateX(-10px); } 100% { transform: translateX(-20px); opacity: 0; } }
+                    .icon-delivery { animation: driveTruck 2.5s infinite linear; display:inline-block; font-size:4.5rem; margin-bottom:10px; }
+                    @keyframes popSuccess { 0% { transform: scale(0.8); opacity: 0; } 50% { transform: scale(1.2); } 100% { transform: scale(1); opacity: 1; } }
+                    .icon-success { animation: popSuccess 0.6s ease-out forwards; display:inline-block; font-size:4.5rem; margin-bottom:10px; }
+                </style>
+
+                <div style="background:#f9f9f9; border:2px solid ${sColor}; border-radius:12px; padding:20px; text-align:center; margin-top:20px; animation: fadeInUp 0.4s;">
+                    <div class="${iconClass}">${iconHtml}</div>
+                    <h3 style="color:${sColor}; margin-bottom:10px; font-family:'Marhey';">${order.status}</h3>
+                    <p style="color:#555; font-size:0.95rem; line-height:1.6; margin-bottom:15px;">${sDesc}</p>
                     
                     <div style="background:#fff; border-radius:8px; padding:15px; border:1px solid #eee; text-align:right; margin-bottom:15px;">
-                        <div style="color:#888; font-size:0.85rem; margin-bottom:5px;">تفاصيل طلبيتك:</div>
+                        <div style="color:#888; font-size:0.85rem; margin-bottom:5px;">المنتجات المطلوبة:</div>
                         <div style="color:#333; font-size:0.9rem; font-weight:bold; line-height:1.5;">• ${cleanItems}</div>
                         <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #ddd; display:flex; justify-content:space-between; font-weight:bold; color:var(--primary);">
                             <span>المجموع الكلي:</span>
-                            <span>${data.order.total || '0'}</span>
+                            <span>${order.total || '-'}</span>
                         </div>
                     </div>
 
-                    <div style="font-size:0.85rem; color:#777; margin-bottom:15px;">رقم الطلب: <strong>${data.order.orderId}</strong></div>
+                    <div style="font-size:0.85rem; color:#777;">
+                        رقم الطلب: <strong>${order.orderId}</strong> | الاسم: <strong>${order.name}</strong>
+                    </div>
                     
-                    <div>
-                        <a href="https://wa.me/962781591754?text=مرحباً، أواجه مشكلة بخصوص الطلب رقم: ${data.order.orderId}" target="_blank" style="color:#aaa; text-decoration:underline; font-size:0.85rem;">هل تواجه مشكلة بالطلب؟ تواصل معنا</a>
+                    <div style="margin-top:15px;">
+                        <a href="https://wa.me/962781591754?text=مرحباً، أستفسر بخصوص الطلب رقم: ${order.orderId}" target="_blank" style="color:#bbb; text-decoration:underline; font-size:0.85rem;">هل تواجه مشكلة بالطلب؟ تواصل معنا</a>
                     </div>
                 </div>
             `;
@@ -379,8 +382,7 @@ async function trackOrder() {
                 <div style="background:#ffeeee; border:2px solid #ffcccc; border-radius:12px; padding:20px; text-align:center; margin-top:20px; animation: fadeInUp 0.4s;">
                     <div style="font-size:3rem; margin-bottom:10px;">❌</div>
                     <h3 style="color:#D32F2F; margin-bottom:10px; font-family:'Marhey';">لم يتم العثور على الطلب</h3>
-                    <p style="color:#555; font-size:0.95rem; line-height:1.6;">تأكد من إدخال رقم الطلب (AURA-...) أو رقم الهاتف بشكل صحيح.</p>
-                    <a href="https://wa.me/962781591754" target="_blank" style="display:inline-block; margin-top:15px; background:#25D366; color:#fff; padding:8px 20px; border-radius:50px; text-decoration:none; font-weight:bold;">تواصل مع الدعم عبر واتساب</a>
+                    <p style="color:#555; font-size:0.95rem; line-height:1.6;">تأكد من إدخال رقم الطلب أو الهاتف بشكل صحيح.</p>
                 </div>
             `;
         }
