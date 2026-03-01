@@ -70,6 +70,7 @@
         <div class="sidebar-header"><h3>القائمة</h3><button class="close-sidebar" onclick="toggleSidebar()">✕</button></div>
         <nav class="sidebar-nav">
             <a onclick="toggleSidebar(); window.scrollTo(0,0)">🏠 الرئيسية</a>
+            <a onclick="openTrackingModal()" style="color:var(--primary); font-family:'Marhey'; font-size:1.1rem; background:#f0fbff; padding-right:15px; border-radius:10px;">📦 تتبع طلبك</a>
             <a onclick="scrollToSection('exclusive-section')">🚨 العروض الحصرية</a>
             <a onclick="scrollToSection('best-seller-section')">🔥 الأكثر طلباً</a>
             <hr style="border:0; border-top:1px solid #eee; margin:10px 0;">
@@ -151,6 +152,23 @@
                 <button class="close-sheet-btn" onclick="closeCheckout()">✕</button>
             </div>
             <div class="modal-scroll-content" id="cart-content-wrapper"></div>
+        </div>
+    </div>
+
+    <div id="track-modal" class="modal-overlay">
+        <div class="modal-sheet checkout-sheet">
+            <div class="modal-header-sticky">
+                <h2 class="section-title" style="margin:0; font-family:'Marhey'; color:var(--primary);">تتبع شحنتك 📦</h2>
+                <button class="close-sheet-btn" onclick="closeTrackingModal()">✕</button>
+            </div>
+            <div class="modal-scroll-content">
+                <div style="text-align:center; margin-bottom:20px;">
+                    <p style="color:#666; font-size:1rem; line-height:1.6;">أدخل <strong>رقم الطلب</strong> (مثال: AURA-123) أو <strong>رقم الهاتف</strong> الذي طلبت به لمعرفة حالة شحنتك فوراً.</p>
+                </div>
+                <input type="text" id="track-input" placeholder="رقم الطلب أو الهاتف..." class="form-input" style="text-align:center; font-size:1.2rem; font-weight:bold; letter-spacing:1px; background:#f9f9f9;">
+                <button id="track-btn" class="order-submit" onclick="trackOrder()" style="margin-top:10px;">ابحث عن طلبي 🚀</button>
+                <div id="track-result"></div>
+            </div>
         </div>
     </div>
 
